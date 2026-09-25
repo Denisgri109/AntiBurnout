@@ -1,0 +1,4 @@
+Backend/.env
+Database/.env
+Frontend/.env
+Hardware/.env
