@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="Anti-Burnout sensor dashboard for healthier screen-time rhythms." />
+	<title>Anti-Burnout / Dashboard</title>
+	<link rel="stylesheet" href="styles.css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;1,500;1,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+	<div class="app">
+		<aside class="sidebar">
+			<a class="brand" href="index.html"><span class="brand-mark">▮▮</span> Anti-Burnout<span>.</span></a>
+			<div class="profile">
+				<div class="profile-avatar" aria-hidden="true">SC</div>
+				<h2>Sarah Connor</h2>
+				<p>Sensor paired · 28 days</p>
+			</div>
+			<nav class="nav" aria-label="Dashboard navigation">
+				<a class="active" href="#overview">Dashboard</a>
+				<a href="#insights">Insights</a>
+				<a href="#tasks">Break plan</a>
+				<a href="#settings">Settings</a>
+			</nav>
+			<p class="sidebar-footer">MOTION SENSOR<br />CONNECTED / LAST SYNC 2 MIN AGO</p>
+		</aside>
+
+		<main class="main" id="overview">
+			<header class="topbar">
+				<div><p class="eyebrow">Monday, 20 October 2026</p><h1>Hello, Sarah.</h1><p class="date">A calmer rhythm starts with noticing.</p></div>
+				<button class="notification" id="notification-button" type="button" aria-label="Test break reminder"><span>✦</span><label>Test reminder</label></button>
+			</header>
+
+			<section aria-labelledby="projects-title">
+				<div class="section-heading"><h2 id="projects-title">Your rhythm</h2><a href="#insights">VIEW INSIGHTS ↘</a></div>
+				<div class="project-grid">
+					<article class="project orange"><span class="project-tag">Screen time</span><button class="project-menu" aria-label="Screen time options">•••</button><h3>Focused<br />today</h3><p><strong>04:26</strong> active time</p><div class="progress"><i style="width: 68%"></i></div></article>
+					<article class="project blue"><span class="project-tag">Breaks</span><button class="project-menu" aria-label="Breaks options">•••</button><h3>Good pace<br />so far</h3><p><strong>03</strong> breaks taken</p><div class="progress"><i style="width: 46%"></i></div></article>
+					<article class="project lilac"><span class="project-tag">Movement</span><button class="project-menu" aria-label="Movement options">•••</button><h3>Keep the<br />body moving</h3><p><strong>07</strong> movement signals</p><div class="progress"><i style="width: 73%"></i></div></article>
+				</div>
+			</section>
+
+			<div class="lower-grid">
+				<section id="tasks" aria-labelledby="tasks-title"><div class="section-heading"><h2 id="tasks-title">Break plan</h2><a href="#tasks">TODAY</a></div><div class="task-list"><div class="task"><div class="task-copy"><strong>Stand up</strong><span>Stretch your legs for two minutes</span></div><button class="task-check" aria-label="Mark stand up complete"></button></div><div class="task"><div class="task-copy"><strong>Look away</strong><span>Rest your eyes and focus across the room</span></div><button class="task-check" aria-label="Mark look away complete"></button></div><div class="task done"><div class="task-copy"><strong>Drink water</strong><span>Small reset, big difference</span></div><button class="task-check" aria-label="Mark drink water incomplete">✓</button></div></div></section>
+				<section id="insights" aria-labelledby="stats-title"><div class="section-heading"><h2 id="stats-title">Statistics</h2></div><div class="stats"><div class="stat"><strong>28 h</strong><span>TRACKED THIS WEEK</span></div><div class="stat"><strong>18</strong><span>BREAKS COMPLETED</span></div><div class="stat"><strong>30 m</strong><span>REMINDER AFTER</span></div></div><div class="break-card"><h3>Next reminder<br /><em>in 08 minutes.</em></h3><p>Your Anti-Burnout sensor noticed a long stretch of stillness.</p><button id="pause-button" type="button">Pause reminders</button></div></section>
+			</div>
+		</main>
+
+		<aside class="calendar" aria-labelledby="calendar-title"><div class="calendar-header"><h2 id="calendar-title">Reminders</h2><button id="add-reminder" type="button" aria-label="Add reminder">+</button></div><div class="day"><div class="day-heading"><span>Today / Oct 20</span><span>•••</span></div><div class="event blue"><time>10:00</time><i class="event-bar"></i><div><small>Anti-Burnout</small><b>Stand and stretch</b></div></div><div class="event"><time>13:20</time><i class="event-bar"></i><div><small>Movement</small><b>Walk for two minutes</b></div></div></div><div class="day"><div class="day-heading"><span>Tomorrow / Oct 21</span><span>•••</span></div><div class="event lilac"><time>10:00</time><i class="event-bar"></i><div><small>Screen rhythm</small><b>Look away</b></div></div><div class="event"><time>13:20</time><i class="event-bar"></i><div><small>Anti-Burnout</small><b>Take a real break</b></div></div></div><div class="day"><div class="day-heading"><span>Friday / Oct 23</span><span>•••</span></div><div class="event blue"><time>11:00</time><i class="event-bar"></i><div><small>Movement</small><b>Meet yourself outside</b></div></div></div></aside>
+	</div>
+	<div class="toast" id="toast" role="status" aria-live="polite">Time to stand up and take a break.</div>
+	<script>
+		const toast = document.querySelector('#toast');
+		const showToast = (message) => { toast.textContent = message; toast.classList.add('show'); window.setTimeout(() => toast.classList.remove('show'), 3200); };
+		document.querySelector('#notification-button').addEventListener('click', () => showToast('Time to stand up and take a break.'));
+		document.querySelector('#add-reminder').addEventListener('click', () => showToast('New 30 minute reminder added.'));
+		document.querySelector('#pause-button').addEventListener('click', (event) => { event.currentTarget.textContent = 'Resume reminders'; showToast('Reminders paused for today.'); });
+		document.querySelectorAll('.task-check').forEach((button) => button.addEventListener('click', () => { const task = button.closest('.task'); task.classList.toggle('done'); button.textContent = task.classList.contains('done') ? '✓' : ''; }));
+	</script>
+</body>
+</html>
