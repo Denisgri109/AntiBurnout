@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AntiBurnout | Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-page">
+  <main class="login-shell" aria-label="Login page">
+    <section class="login-card">
+      <aside class="visual" aria-label="Brand visual panel">
+        <div class="logo-badge">
+          <div class="logo-frame" aria-label="AntiBurnout logo">
+            <img src="Images/Picture1.png" alt="AntiBurnout logo" />
+          </div>
+          <a class="back-link" href="index.html">Back to website</a>
+        </div>
+
+        <div class="visual-copy">
+          <h1>Stay focused.<br>Keep the fire from burnout.</h1>
+          <p>A calm, modern workspace for tracking energy, habits, and daily balance.</p>
+          <div class="status-dots" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span class="active"></span>
+          </div>
+        </div>
+      </aside>
+
+      <section class="form-panel" aria-label="Login form">
+        <div>
+          <p class="eyebrow">AntiBurnout</p>
+          <h2 class="title">Welcome back</h2>
+          <p class="subtitle">Log in to continue your progress and pick up where you left off.</p>
+          <a class="account-link" href="Register.html">Create an account</a>
+        </div>
+
+        <form class="fields" action="#" method="post">
+          <div class="field">
+            <input type="email" name="email" placeholder="Email address" autocomplete="email" />
+          </div>
+
+          <div class="field password">
+            <input type="password" name="password" placeholder="Password" autocomplete="current-password" />
+            <span class="eye" aria-hidden="true"></span>
+          </div>
+
+          <div class="actions">
+            <label class="remember">
+              <input type="checkbox" name="remember" />
+              <span>Remember me</span>
+            </label>
+            <a href="#">Forgot password?</a>
+          </div>
+
+          <button class="button" type="submit">Log in</button>
+        </form>
+
+      </section>
+    </section>
+  </main>
+</body>
+</html>
