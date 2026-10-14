@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
 </head>
 <body class="login-page">
   <main class="login-shell" aria-label="Login page">
@@ -15,9 +15,10 @@
       <aside class="visual" aria-label="Brand visual panel">
         <div class="logo-badge">
           <div class="logo-frame" aria-label="AntiBurnout logo">
-            <img src="Images/Picture1.png" alt="AntiBurnout logo" />
+            <img src="{{ url_for('static', path='Images/Picture1.png') }}" alt="AntiBurnout logo" />
           </div>
-          <a class="back-link" href="index.html">Back to website</a>
+          <a class="back-link" href="/">Back to website</a>
+
         </div>
 
         <div class="visual-copy">
@@ -36,10 +37,10 @@
           <p class="eyebrow">AntiBurnout</p>
           <h2 class="title">Welcome back</h2>
           <p class="subtitle">Log in to continue your progress and pick up where you left off.</p>
-          <a class="account-link" href="Register.html">Create an account</a>
+          <a class="account-link" href="/Register">Create an account</a>
         </div>
 
-        <form class="fields" action="#" method="post">
+        <form class="fields" action="/Login" method="post">
           <div class="field">
             <input type="email" name="email" placeholder="Email address" autocomplete="email" />
           </div>

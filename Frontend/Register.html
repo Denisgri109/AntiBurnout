@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
 </head>
 <body class="login-page register-page">
   <main class="login-shell" aria-label="Registration page">
@@ -15,9 +15,11 @@
       <aside class="visual" aria-label="Brand visual panel">
         <div class="logo-badge">
           <div class="logo-frame" aria-label="AntiBurnout logo">
-            <img src="Images/Picture1.png" alt="AntiBurnout logo" />
+            <img src="{{ url_for('static', path='Images/Picture1.png') }}" alt="AntiBurnout logo" />
+
           </div>
-          <a class="back-link" href="index.html">Back to website</a>
+          <a class="back-link" href="/">Back to website</a>
+
         </div>
 
         <div class="visual-copy">
@@ -38,9 +40,9 @@
           <p class="subtitle">Set up your account and start building a healthier relationship with your devices.</p>
         </div>
 
-        <form class="fields" action="#" method="post">
+        <form class="fields" action="/Register" method="post">
           <div class="field">
-            <input type="text" name="name" placeholder="Full name" autocomplete="name" required />
+            <input type="text" name="username" placeholder="Username" autocomplete="username" required />
           </div>
 
           <div class="field">
@@ -59,7 +61,7 @@
 
           <div class="account-prompt">
             <span>Already have an account?</span>
-            <a class="account-link" href="Login.html">Log in</a>
+            <a class="account-link" href="/Login">Log in</a>
           </div>
 
           <button class="button" type="submit">Create account</button>
