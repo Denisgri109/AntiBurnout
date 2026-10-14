@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from Database import models
 from Database.database import Base, engine, get_db
+from datetime import datetime
 
 Base.metadata.create_all(bind=engine)
 
@@ -115,6 +116,41 @@ def create_sensor_log(session_id: int, pressure_detected: int, motion_detected:i
     db.commit()
     db.refresh(new_log)
     return new_log 
+
+# Start a session when user sits down
+
+
+@app.post("/api/session/start", status_code=status.HTTP_201_CREATED)
+def start_session(user_id: int, db: Annotated[Session, Depends(get_db)]):
+    new_session = models.Session(
+        user_id=user_id,
+        start_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        status="active"
+    )
+    db.add(new_session)
+    db.commit()
+    db.refresh(new_session)
+    return new_session
+
+
+# End session when user finishes or takes break
+
+
+
+@app.post("/api/session/end/{session_id}")
+def end_session(session_id: int, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(select(models.Session).where(models.Session.id == session_id))
+    session = result.scalars().first()
+    if not session:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    
+    session.end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    session.status = "completed"
+    db.commit()
+    db.refresh(session)
+    return session
+
+
 
 @app.exception_handler(StarletteHTTPException)
 def general_http_exception_handler(request:Request, exception:StarletteHTTPException):

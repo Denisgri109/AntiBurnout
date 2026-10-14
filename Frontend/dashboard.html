@@ -20,8 +20,8 @@
 		<aside class="sidebar">
 			<a class="brand" href="index.html"><span class="brand-mark">▮▮</span> Anti-Burnout<span>.</span></a>
 			<div class="profile">
-				<div class="profile-avatar" aria-hidden="true">SC</div>
-				<h2>Sarah Connor</h2>
+				<div class="profile-avatar" aria-hidden="true">{{ user.username[:2]|upper if user else "SC" }}</div>
+				<h2>{{ user.username if user else "Sarah Connor" }}</h2>
 				<p>Sensor paired · 28 days</p>
 			</div>
 			<nav class="nav" aria-label="Dashboard navigation">
@@ -46,7 +46,7 @@
 			<header class="topbar">
 				<div>
 					<p class="eyebrow">Monday, 20 October 2026</p>
-					<h1>Hello, Sarah.</h1>
+					<h1>Hello, {{ user.username if user else "Sarah" }}.</h1>
 					<p class="date">A calmer rhythm starts with noticing.</p>
 				</div>
 				<button class="notification" id="notification-button" type="button"
@@ -56,6 +56,14 @@
 			<section aria-labelledby="projects-title">
 				<div class="section-heading">
 					<h2 id="projects-title">Your rhythm</h2><a href="#insights">VIEW INSIGHTS ↘</a>
+				</div>
+				<div class="session-history">
+				<h3>Recent Sessions</h3>
+					{% for s in sessions %}
+						<p>Session #{{ s.id }} — Started: {{ s.start_time }} (Status: {{ s.status }})</p>
+					{% else %}
+							<p>No desk sessions recorded yet.</p>
+					{% endfor %}
 				</div>
 				<div class="project-grid">
 					<article class="project orange"><span class="project-tag">Screen time</span><button
