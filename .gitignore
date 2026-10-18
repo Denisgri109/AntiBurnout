@@ -1,6 +1,11 @@
+<<<<<<< Updated upstream
 Backend/.env
 Database/.env
 Frontend/.env
 Hardware/.env
 __pycache__/
 *.db
+=======
+/Backend/Database/__pycache__
+/Backend/__pycache__
+>>>>>>> Stashed changes

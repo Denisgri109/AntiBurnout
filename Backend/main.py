@@ -11,6 +11,9 @@ from sqlalchemy.orm import Session
 from Database import models
 from Database.database import Base, engine, get_db
 from datetime import datetime
+import bcrypt
+
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -83,20 +86,35 @@ def get_user(user_id: int, db: Annotated[Session, Depends(get_db)]):
 
 @app.post("/Register", include_in_schema=False)
 def register_user(request: Request,db: Annotated[Session, Depends(get_db)],username: str = Form(...),email: str = Form(...),password: str = Form(...),passwordConfirmation: str = Form(...)):
-    new_user = models.User(username=username,email=email,password_hash=password)
+
+    if password != passwordConfirmation:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password doesn't match")
+
+    hashed_password = get_password_hash(password)
+
+    new_user = models.User(username=username,email=email,password_hash=hashed_password)
+
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+    return templates.TemplateResponse(request, "Dashboard.html", {"new_user": new_user, "title": "User Dashboard"})
 
 @app.post("/Login", include_in_schema=False)
 def login_user(request: Request,db: Annotated[Session, Depends(get_db)],email: str = Form(...),password: str = Form(...)): 
     result = db.execute(select(models.User).where(models.User.email == email))
     user = result.scalars().first()
+
+    is_valid = verify_password(password, user.password_hash)
+
+
+
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    if user.password_hash != password:
+    
+    if not is_valid:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
+
     return templates.TemplateResponse(request, "Dashboard.html", {"user": user, "title": "User Dashboard"})
 
 
@@ -174,6 +192,24 @@ def general_http_exception_handler(request:Request, exception:StarletteHTTPExcep
          },
         status_code = exception.status_code,
     )
+
+
+
+
+def get_password_hash(password: str) -> str:
+    """Hashes a plain text password with a randomly generated salt."""
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_password_bytes = bcrypt.hashpw(password_bytes, salt)
+    
+    return hashed_password_bytes.decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifies a plain text password against a stored hash."""
+    plain_password_bytes = plain_password.encode('utf-8')
+    hashed_password_bytes = hashed_password.encode('utf-8')
+    
+    return bcrypt.checkpw(plain_password_bytes, hashed_password_bytes)
 
 
     
