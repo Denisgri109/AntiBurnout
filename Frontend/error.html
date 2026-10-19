@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Error {{ status_code }}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ status_code }} / Anti-Burnout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;1,500;1,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
 </head>
-<body>
-  <h1>Error {{ status_code }}</h1>
-  <p>{{ message }}</p>
-  <a href="/">Go back to Home</a>
+<body class="error-page">
+  <main class="error-overlay" aria-labelledby="error-title">
+    <section class="error-card" role="alert">
+      <span class="error-code">{{ status_code }}</span>
+      <p class="eyebrow">Something needs attention</p>
+      <h1 id="error-title">Let’s reset<br /><em>the rhythm.</em></h1>
+      <p class="error-message">{{ message }}</p>
+      <a class="primary-button error-home-link" href="{{ url_for('home') }}">Back to home <span>↗</span></a>
+    </section>
+  </main>
 </body>
 </html>
