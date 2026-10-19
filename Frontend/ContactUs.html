@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Get in touch with the Anti-Burnout team." />
   <title>Contact / Anti-Burnout</title>
-  <link rel="icon" type="image/png" href="Images/Picture1.png" />
+  <link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;1,500;1,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -13,12 +13,12 @@
 </head>
 <body class="contact-page">
   <header class="site-header">
-    <a class="brand" href="index.html">Anti-Burnout<span>.</span></a>
+    <a class="brand" href="{{ url_for('home') }}">Anti-Burnout<span>.</span></a>
     <nav class="main-nav" aria-label="Main navigation">
-      <a href="index.html#how-it-works">How it works</a>
-      <a href="index.html#for-you">For you</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a class="active" href="ContactUs.html" aria-current="page">Contact</a>
+      <a href="{{ url_for('home') }}#how-it-works">How it works</a>
+      <a href="{{ url_for('home') }}#for-you">For you</a>
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="active" href="{{ url_for('contact') }}" aria-current="page">Contact</a>
     </nav>
     <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">
       <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
@@ -34,7 +34,7 @@
         <p class="contact-lede">Questions about the sensor, ideas for the project, or just want to say hello? We’d love to hear from you.</p>
       </div>
       <div class="contact-hero-art">
-        <img src="Images/Picture1.png" alt="A person taking a screen break" />
+        <img src="{{ url_for('static', path='Images/Picture1.png') }}" alt="A person taking a screen break" />
         <span class="image-label">01 / connect</span>
       </div>
     </section>
@@ -46,7 +46,7 @@
         <p>We usually reply within two working days. No pressure, no noise — just a thoughtful response.</p>
         <div class="contact-details">
           <div><span>Email</span><a href="mailto:hello@anti-burnout.example">hello@anti-burnout.example</a></div>
-          <div><span>Follow the project</span><a href="index.html#how-it-works">Learn how it works ↘</a></div>
+          <div><span>Follow the project</span><a href="{{ url_for('home') }}#how-it-works">Learn how it works ↘</a></div>
         </div>
       </div>
 
@@ -74,7 +74,7 @@
   </main>
 
   <footer class="site-footer">
-    <a class="brand" href="index.html">Anti-Burnout<span>.</span></a>
+    <a class="brand" href="{{ url_for('home') }}">Anti-Burnout<span>.</span></a>
     <p>Designed for a better relationship with your devices.</p>
     <span>© 2026 TEMPO</span>
   </footer>

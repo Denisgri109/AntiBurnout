@@ -7,7 +7,7 @@
 	<meta name="description" content="Anti-Burnout sensor dashboard for healthier screen-time rhythms." />
 	<title>Anti-Burnout / Dashboard</title>
 	<link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
-	<link rel="icon" type="image/png" href="Images/Picture1.png" />
+	<link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link
@@ -18,7 +18,7 @@
 <body>
 	<div class="app">
 		<aside class="sidebar">
-			<a class="brand" href="index.html"><span class="brand-mark">▮▮</span> Anti-Burnout<span>.</span></a>
+			<a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">▮▮</span> Anti-Burnout<span>.</span></a>
 			<div class="profile">
 				<div class="profile-avatar" aria-hidden="true">{{ user.username[:2]|upper if user else "SC" }}</div>
 				<h2>{{ user.username if user else "Sarah Connor" }}</h2>
@@ -35,9 +35,9 @@
 
 		<main class="main" id="overview">
 			<nav class="dashboard-nav" aria-label="Dashboard page navigation">
-				<a class="dashboard-nav-home" href="index.html">Anti-Burnout<span>.</span></a>
+				<a class="dashboard-nav-home" href="{{ url_for('home') }}">Anti-Burnout<span>.</span></a>
 				<div class="dashboard-nav-links">
-					<a href="index.html">Home</a>
+					<a href="{{ url_for('home') }}">Home</a>
 					<a class="active" href="#overview">Dashboard</a>
 					<a href="#tasks">Break plan</a>
 					<a href="#insights">Insights</a>
@@ -159,14 +159,7 @@
 		</aside>
 	</div>
 	<div class="toast" id="toast" role="status" aria-live="polite">Time to stand up and take a break.</div>
-	<script>
-		const toast = document.querySelector('#toast');
-		const showToast = (message) => { toast.textContent = message; toast.classList.add('show'); window.setTimeout(() => toast.classList.remove('show'), 3200); };
-		document.querySelector('#notification-button').addEventListener('click', () => showToast('Time to stand up and take a break.'));
-		document.querySelector('#add-reminder').addEventListener('click', () => showToast('New 30 minute reminder added.'));
-		document.querySelector('#pause-button').addEventListener('click', (event) => { event.currentTarget.textContent = 'Resume reminders'; showToast('Reminders paused for today.'); });
-		document.querySelectorAll('.task-check').forEach((button) => button.addEventListener('click', () => { const task = button.closest('.task'); task.classList.toggle('done'); button.textContent = task.classList.contains('done') ? '✓' : ''; }));
-	</script>
+	
 </body>
 
 </html>

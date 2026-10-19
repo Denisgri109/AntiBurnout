@@ -11,8 +11,8 @@ from sqlalchemy.orm import Session
 from Database import models
 from Database.database import Base, engine, get_db
 from datetime import datetime
+from pathlib import Path
 import bcrypt
-
 
 
 Base.metadata.create_all(bind=engine)
@@ -21,8 +21,9 @@ app = FastAPI()
 
 # app.mount("/media", StaticFiles(directory="media"), name="media")
 
-app.mount("/static", StaticFiles(directory="../Frontend"), name="static")
-templates = Jinja2Templates(directory="../Frontend")
+FRONTEND_DIRECTORY = Path(__file__).resolve().parent.parent / "Frontend"
+app.mount("/static", StaticFiles(directory=FRONTEND_DIRECTORY), name="static")
+templates = Jinja2Templates(directory=FRONTEND_DIRECTORY)
 
 
 
@@ -42,18 +43,33 @@ def register_page(request: Request):
     return templates.TemplateResponse(request, "Register.html", {"title": "Register"})
 
 
-@app.get("/Dashboard", include_in_schema=False)
-def dashboard_page(request:Request, user_id:int, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.User).where(models.User.id == user_id))
-    user = result.scalars().first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+@app.get("/Dashboard", include_in_schema=False, name="dashboard")
+def dashboard_page(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    user_id: int | None = None,
+):
+    user = None
+    sessions = []
+    if user_id is not None:
+        result = db.execute(select(models.User).where(models.User.id == user_id))
+        user = result.scalars().first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    result = db.execute(select(models.Session).where(models.Session.user_id == user_id))
-    sessions = result.scalars().all()
+        result = db.execute(select(models.Session).where(models.Session.user_id == user_id))
+        sessions = result.scalars().all()
+
+    return templates.TemplateResponse(
+        request,
+        "dashboard.html",
+        {"user": user, "sessions": sessions, "title": "User Dashboard"},
+    )
 
 
-    return templates.TemplateResponse( request, "Dashboard.html", {"user": user,"sessions": sessions, "title": "User Dashboard"})
+@app.get("/Contact", include_in_schema=False, name="contact")
+def contact_page(request: Request):
+    return templates.TemplateResponse(request, "ContactUs.html", {"title": "Contact"})
 
 
 
@@ -105,15 +121,18 @@ def login_user(request: Request,db: Annotated[Session, Depends(get_db)],email: s
     result = db.execute(select(models.User).where(models.User.email == email))
     user = result.scalars().first()
 
-    is_valid = verify_password(password, user.password_hash)
-
-
-
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Wrong email or password",
+        )
     
+    is_valid = verify_password(password, user.password_hash)
     if not is_valid:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Wrong email or password",
+        )
 
     return templates.TemplateResponse(request, "Dashboard.html", {"user": user, "title": "User Dashboard"})
 
