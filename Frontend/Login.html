@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v=laptop-slide-height" />
 </head>
 <body class="login-page">
   <main class="login-shell" aria-label="Login page">
@@ -22,12 +22,24 @@
         </div>
 
         <div class="visual-copy">
-          <h1>Stay focused.<br>Keep the fire from burnout.</h1>
-          <p>A calm, modern workspace for tracking energy, habits, and daily balance.</p>
+          <div class="visual-slides" aria-live="polite">
+            <div class="visual-slide">
+              <h1>Stay focused.<br>Keep the fire from burnout.</h1>
+              <p>A calm, modern workspace for tracking energy, habits, and daily balance.</p>
+            </div>
+            <div class="visual-slide">
+              <h1>Notice your rhythm.<br>Protect your energy.</h1>
+              <p>See your habits clearly and make small changes that support your day.</p>
+            </div>
+            <div class="visual-slide">
+              <h1>Take a break.<br>Come back refreshed.</h1>
+              <p>Gentle reminders help you pause, move, and return when you are ready.</p>
+            </div>
+          </div>
           <div class="status-dots" aria-hidden="true">
             <span></span>
             <span></span>
-            <span class="active"></span>
+            <span></span>
           </div>
         </div>
       </aside>

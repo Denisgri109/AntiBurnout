@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Request, HTTPException, status, Depends, Form
+from fastapi import FastAPI, Request, HTTPException, status, Depends, Form, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from Database.schemas import UserCreate, UserResponse
 from typing import Annotated
@@ -13,6 +13,7 @@ from Database.database import Base, engine, get_db
 from datetime import datetime
 from pathlib import Path
 import bcrypt
+from urllib.parse import urlencode
 
 
 Base.metadata.create_all(bind=engine)
@@ -48,6 +49,51 @@ def dashboard_page(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
     user_id: int | None = None,
+    section: str | None = None,
+    completed_tasks: Annotated[list[str] | None, Query()] = None,
+):
+    return render_dashboard(
+        request,
+        db,
+        user_id=user_id,
+        section=section,
+        completed_tasks=completed_tasks or [],
+    )
+
+
+@app.post("/Dashboard", include_in_schema=False, name="dashboard_action")
+def dashboard_action(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    user_id: Annotated[int | None, Form()] = None,
+    section: Annotated[str | None, Form()] = None,
+    task_id: Annotated[str | None, Form()] = None,
+    completed_tasks: Annotated[list[str] | None, Form()] = None,
+):
+    tasks = completed_tasks or []
+    if task_id is not None:
+        if task_id in tasks:
+            tasks.remove(task_id)
+        else:
+            tasks.append(task_id)
+
+    query_values = [("section", section or "tasks")]
+    if user_id is not None:
+        query_values.append(("user_id", str(user_id)))
+    query_values.extend(("completed_tasks", task) for task in tasks)
+    query_string = urlencode(query_values)
+    return RedirectResponse(
+        url=f"/Dashboard?{query_string}#tasks",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+def render_dashboard(
+    request: Request,
+    db: Session,
+    user_id: int | None,
+    section: str | None,
+    completed_tasks: list[str],
 ):
     user = None
     sessions = []
@@ -63,7 +109,13 @@ def dashboard_page(
     return templates.TemplateResponse(
         request,
         "dashboard.html",
-        {"user": user, "sessions": sessions, "title": "User Dashboard"},
+        {
+            "user": user,
+            "sessions": sessions,
+            "title": "User Dashboard",
+            "selected_section": section,
+            "completed_tasks": completed_tasks,
+        },
     )
 
 
