@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Anti-Burnout administration dashboard." />
+  <title>Anti-Burnout / Admin</title>
+  <link rel="stylesheet" href="styles.css?v=admin-dashboard" />
+  <link rel="icon" type="image/png" href="Images/Picture1.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;1,500;1,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="app admin-app">
+    <aside class="sidebar">
+      <a class="brand" href="/"><span class="brand-mark">▮▮</span> Anti-Burnout<span>.</span></a>
+      <div class="profile admin-profile">
+        <div class="profile-avatar" aria-hidden="true">AD</div>
+        <h2>System admin</h2>
+        <p>Control room · online</p>
+      </div>
+      <nav class="nav" aria-label="Admin navigation">
+        <a class="active selected" aria-current="page" href="#overview">Overview</a>
+        <a href="#users">Users</a>
+        <a href="#sessions">Sessions</a>
+        <a href="#alerts">Alerts</a>
+      </nav>
+      <p class="sidebar-footer">ADMIN CONTROL ROOM<br />SYSTEM STATUS / ALL SERVICES ONLINE</p>
+    </aside>
+
+    <main class="main admin-main" id="overview">
+      <nav class="dashboard-nav" aria-label="Admin page navigation">
+        <a class="dashboard-nav-home" href="/">Anti-Burnout<span>.</span></a>
+        <div class="dashboard-nav-links">
+          <a href="/Dashboard">User view</a>
+          <a class="active" href="#overview">Admin</a>
+        </div>
+      </nav>
+
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Operations / 20 October 2026</p>
+          <h1>Good morning, admin.</h1>
+          <p class="date">Keep the whole Anti-Burnout system in balance.</p>
+        </div>
+        <span class="notification"><span>✦</span><label>Broadcast update</label></span>
+      </header>
+
+      <section aria-labelledby="overview-title">
+        <div class="section-heading">
+          <h2 id="overview-title">System overview</h2>
+          <span class="admin-live"><i></i> LIVE MONITORING</span>
+        </div>
+        <div class="admin-stat-grid">
+          <article class="admin-stat orange"><span>Registered users</span><strong>248</strong><small>ACCOUNTS IN SYSTEM</small></article>
+          <article class="admin-stat blue"><span>Sessions tracked</span><strong>1,284</strong><small>ALL TIME SENSOR LOGS</small></article>
+          <article class="admin-stat lilac"><span>Live sessions</span><strong>36</strong><small>USERS AT THEIR DESK</small></article>
+          <article class="admin-stat cream"><span>Alerts raised</span><strong>672</strong><small>REMINDERS TRIGGERED</small></article>
+        </div>
+      </section>
+
+      <div class="admin-content-grid">
+        <section class="admin-panel" id="users" aria-labelledby="users-title">
+          <div class="section-heading">
+            <h2 id="users-title">User directory</h2>
+            <span class="admin-text-button">EXPORT CSV ↘</span>
+          </div>
+          <label class="admin-search">
+            <span>⌕</span>
+            <input type="search" placeholder="Search by name or email" aria-label="Search users" />
+          </label>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>User</th><th>Joined</th><th>Sessions</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong>Sarah Connor</strong><span>sarah@example.com</span></td>
+                  <td>04 Oct 2026</td>
+                  <td>28</td>
+                  <td><span class="status-pill online">ACTIVE</span></td>
+                  <td><span class="row-action">Manage</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Alex Morgan</strong><span>alex@example.com</span></td>
+                  <td>28 Sep 2026</td>
+                  <td>19</td>
+                  <td><span class="status-pill online">ACTIVE</span></td>
+                  <td><span class="row-action">Manage</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Jamie Lee</strong><span>jamie@example.com</span></td>
+                  <td>16 Sep 2026</td>
+                  <td>12</td>
+                  <td><span class="status-pill online">ACTIVE</span></td>
+                  <td><span class="row-action">Manage</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="admin-side-column">
+          <section class="admin-panel health-panel" id="alerts" aria-labelledby="health-title">
+            <div class="section-heading"><h2 id="health-title">Sensor health</h2><span class="health-score">98%</span></div>
+            <div class="health-meter"><i style="width: 98%"></i></div>
+            <div class="health-row"><span><i class="health-dot"></i>Motion sensors</span><strong>Online</strong></div>
+            <div class="health-row"><span><i class="health-dot"></i>Pressure sensors</span><strong>Online</strong></div>
+            <div class="health-row"><span><i class="health-dot warning"></i>Needs attention</span><strong>1 device</strong></div>
+            <a class="admin-link" href="#sessions">VIEW DEVICE LOG ↘</a>
+          </section>
+          <section class="admin-panel quick-panel" aria-labelledby="quick-title">
+            <div class="section-heading"><h2 id="quick-title">Quick actions</h2></div>
+            <div class="quick-action"><span>◌</span> Pause all reminders</div>
+            <div class="quick-action"><span>↻</span> Refresh live data</div>
+            <div class="quick-action"><span>↓</span> Download weekly report</div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="admin-panel sessions-panel" id="sessions" aria-labelledby="sessions-title">
+        <div class="section-heading"><h2 id="sessions-title">Recent activity</h2><a class="admin-text-button" href="#sessions">VIEW ALL ↘</a></div>
+        <div class="activity-list">
+          <div class="activity-row"><span class="activity-icon is-active">◒</span><div><strong>Sarah Connor started a session</strong><span>Session #1284 · 10:04 today</span></div><b>active</b></div>
+          <div class="activity-row"><span class="activity-icon">◒</span><div><strong>Alex Morgan completed a session</strong><span>Session #1283 · 09:48 today</span></div><b>complete</b></div>
+          <div class="activity-row"><span class="activity-icon">◒</span><div><strong>Jamie Lee started a session</strong><span>Session #1282 · 09:31 today</span></div><b>active</b></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
