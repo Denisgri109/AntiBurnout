@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="description" content="Anti-Burnout sensor dashboard for healthier screen-time rhythms." />
 	<title>Anti-Burnout / Dashboard</title>
-	<link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+	<link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v=dashboard-dot-on-select" />
 	<link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,10 +25,10 @@
 				<p>Sensor paired · 28 days</p>
 			</div>
 			<nav class="nav" aria-label="Dashboard navigation">
-				<a class="active" href="#overview">Dashboard</a>
-				<a href="#insights">Insights</a>
-				<a href="#tasks">Break plan</a>
-				<a href="#settings">Settings</a>
+				<a class="{% if selected_section == 'overview' %}active selected{% endif %}" {% if selected_section == 'overview' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=overview#overview">Dashboard</a>
+				<a class="{% if selected_section == 'insights' %}active selected{% endif %}" {% if selected_section == 'insights' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=insights#insights">Insights</a>
+				<a class="{% if selected_section == 'tasks' %}active selected{% endif %}" {% if selected_section == 'tasks' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=tasks#tasks">Break plan</a>
+				<a class="{% if selected_section == 'settings' %}active selected{% endif %}" {% if selected_section == 'settings' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=settings#settings">Settings</a>
 			</nav>
 			<p class="sidebar-footer">MOTION SENSOR<br />CONNECTED / LAST SYNC 2 MIN AGO</p>
 		</aside>
@@ -93,20 +93,32 @@
 						<h2 id="tasks-title">Break plan</h2><a href="#tasks">TODAY</a>
 					</div>
 					<div class="task-list">
-						<div class="task">
+						<form class="task {% if 'stand_up' in completed_tasks %}done selected{% endif %}" method="post" action="{{ url_for('dashboard_action') }}">
 							<div class="task-copy"><strong>Stand up</strong><span>Stretch your legs for two
 									minutes</span></div><button class="task-check"
-								aria-label="Mark stand up complete"></button>
-						</div>
-						<div class="task">
+								aria-label="Toggle stand up" type="submit">{% if 'stand_up' in completed_tasks %}✓{% endif %}</button>
+							{% if user %}<input type="hidden" name="user_id" value="{{ user.id }}" />{% endif %}
+							<input type="hidden" name="section" value="tasks" />
+							<input type="hidden" name="task_id" value="stand_up" />
+							{% for completed_task in completed_tasks %}<input type="hidden" name="completed_tasks" value="{{ completed_task }}" />{% endfor %}
+						</form>
+						<form class="task {% if 'look_away' in completed_tasks %}done selected{% endif %}" method="post" action="{{ url_for('dashboard_action') }}">
 							<div class="task-copy"><strong>Look away</strong><span>Rest your eyes and focus across the
 									room</span></div><button class="task-check"
-								aria-label="Mark look away complete"></button>
-						</div>
-						<div class="task done">
+								aria-label="Toggle look away" type="submit">{% if 'look_away' in completed_tasks %}✓{% endif %}</button>
+							{% if user %}<input type="hidden" name="user_id" value="{{ user.id }}" />{% endif %}
+							<input type="hidden" name="section" value="tasks" />
+							<input type="hidden" name="task_id" value="look_away" />
+							{% for completed_task in completed_tasks %}<input type="hidden" name="completed_tasks" value="{{ completed_task }}" />{% endfor %}
+						</form>
+						<form class="task {% if 'drink_water' in completed_tasks %}done selected{% endif %}" method="post" action="{{ url_for('dashboard_action') }}">
 							<div class="task-copy"><strong>Drink water</strong><span>Small reset, big difference</span>
-							</div><button class="task-check" aria-label="Mark drink water incomplete">✓</button>
-						</div>
+							</div><button class="task-check" aria-label="Toggle drink water" type="submit">{% if 'drink_water' in completed_tasks %}✓{% endif %}</button>
+							{% if user %}<input type="hidden" name="user_id" value="{{ user.id }}" />{% endif %}
+							<input type="hidden" name="section" value="tasks" />
+							<input type="hidden" name="task_id" value="drink_water" />
+							{% for completed_task in completed_tasks %}<input type="hidden" name="completed_tasks" value="{{ completed_task }}" />{% endfor %}
+						</form>
 					</div>
 				</section>
 				<section id="insights" aria-labelledby="stats-title">
@@ -159,7 +171,6 @@
 		</aside>
 	</div>
 	<div class="toast" id="toast" role="status" aria-live="polite">Time to stand up and take a break.</div>
-	
 </body>
 
 </html>
