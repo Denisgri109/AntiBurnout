@@ -2,6 +2,652 @@
   box-sizing: border-box;
 }
 
+.sensor-page {
+  min-height: 100vh;
+}
+
+.sensor-header {
+  border-bottom: 1px solid var(--line);
+}
+
+.sensor-header .main-nav .active {
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.sensor-main {
+  margin: 0 auto;
+  max-width: 1280px;
+  padding: 76px 5vw 100px;
+}
+
+.sensor-intro {
+  align-items: end;
+  display: flex;
+  gap: 40px;
+  justify-content: space-between;
+  margin-bottom: 82px;
+}
+
+.sensor-intro h1 {
+  color: var(--orange);
+  font: 600 clamp(72px, 10vw, 140px) 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.06em;
+  line-height: 0.8;
+  margin: 0 0 30px;
+  text-transform: uppercase;
+}
+
+.sensor-intro h1 em,
+.sensor-help h2 em {
+  color: var(--cream);
+  font-style: italic;
+}
+
+.sensor-lede {
+  color: rgba(243, 237, 228, 0.7);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 480px;
+}
+
+.connection-status {
+  align-items: center;
+  border: 1px solid var(--orange);
+  display: flex;
+  gap: 15px;
+  min-width: 255px;
+  padding: 17px 20px;
+}
+
+.connection-status strong,
+.connection-status span {
+  display: block;
+}
+
+.connection-status strong {
+  color: var(--orange);
+  font-size: 13px;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+}
+
+.connection-status div span {
+  color: rgba(243, 237, 228, 0.6);
+  font-size: 10px;
+}
+
+.connection-pulse,
+.sensor-state i,
+.live-label i {
+  background: #86d69e;
+  border-radius: 50%;
+  display: inline-block;
+  height: 9px;
+  width: 9px;
+}
+
+.connection-pulse {
+  box-shadow: 0 0 0 5px rgba(134, 214, 158, 0.14);
+}
+
+.sensor-overview .section-heading,
+.sensor-activity .section-heading {
+  align-items: baseline;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 15px;
+}
+
+.sensor-overview h2,
+.sensor-activity h2 {
+  font: 500 30px 'Barlow Condensed', sans-serif;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.sensor-count,
+.live-label {
+  color: var(--orange);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.connection-map {
+  align-items: center;
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(50px, 0.45fr) minmax(170px, 1.15fr) minmax(50px, 0.45fr) minmax(130px, 1fr);
+  margin: 44px 0 54px;
+}
+
+.connection-node {
+  align-items: center;
+  border: 1px solid var(--line);
+  display: grid;
+  min-height: 136px;
+  padding: 18px;
+  position: relative;
+}
+
+.connection-node-motion {
+  border-color: var(--orange);
+}
+
+.connection-node-pressure {
+  border-color: var(--blue);
+}
+
+.connection-node-icon {
+  font: 500 42px 'Barlow Condensed', sans-serif;
+  line-height: 0.8;
+}
+
+.connection-node-number {
+  color: rgba(243, 237, 228, 0.5);
+  font-size: 9px;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+}
+
+.connection-node strong {
+  font: 500 26px 'Barlow Condensed', sans-serif;
+  text-transform: uppercase;
+}
+
+.connection-node small {
+  align-items: center;
+  color: rgba(243, 237, 228, 0.62);
+  display: flex;
+  font-size: 9px;
+  gap: 7px;
+}
+
+.connection-node small i {
+  background: #86d69e;
+  border-radius: 50%;
+  height: 6px;
+  width: 6px;
+}
+
+.connection-hub {
+  align-items: center;
+  background: var(--orange);
+  border-radius: 50%;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  height: 170px;
+  justify-content: center;
+  justify-self: center;
+  position: relative;
+  text-align: center;
+  width: 170px;
+  z-index: 1;
+}
+
+.hub-mark {
+  font-size: 18px;
+  letter-spacing: -5px;
+  margin-left: -5px;
+}
+
+.connection-hub strong {
+  font-size: 11px;
+  margin-top: 11px;
+}
+
+.connection-hub small {
+  font-size: 8px;
+  margin-top: 6px;
+}
+
+.connection-line {
+  border-top: 1px dashed rgba(243, 237, 228, 0.5);
+  position: relative;
+}
+
+.connection-line span {
+  animation: signal-flow 2.4s linear infinite;
+  background: var(--orange);
+  border-radius: 50%;
+  height: 7px;
+  position: absolute;
+  top: -4px;
+  width: 7px;
+}
+
+.connection-line-motion span {
+  right: 0;
+}
+
+.connection-line-pressure span {
+  left: 0;
+}
+
+@keyframes signal-flow {
+  from {
+    opacity: 0.3;
+    transform: translateX(0);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.3;
+    transform: translateX(100%);
+  }
+}
+
+.sensor-grid {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sensor-card {
+  color: var(--ink);
+  min-height: 365px;
+  padding: 29px 31px;
+}
+
+.sensor-card-orange {
+  background: var(--orange);
+}
+
+.sensor-card-blue {
+  background: var(--blue);
+}
+
+.sensor-card-topline,
+.sensor-details div {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sensor-number {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sensor-state {
+  align-items: center;
+  display: inline-flex;
+  font-size: 10px;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.sensor-state i {
+  background: var(--ink);
+  height: 7px;
+  width: 7px;
+}
+
+.sensor-icon {
+  font: 500 72px 'Barlow Condensed', sans-serif;
+  height: 100px;
+  line-height: 1;
+  margin-top: 33px;
+}
+
+.sensor-card h3 {
+  font: 600 47px 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  margin: 0 0 15px;
+  text-transform: uppercase;
+}
+
+.sensor-card p {
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 390px;
+}
+
+.sensor-details {
+  border-top: 1px solid rgba(23, 25, 26, 0.3);
+  display: grid;
+  gap: 9px;
+  margin: 28px 0 0;
+  padding-top: 14px;
+}
+
+.sensor-details dt,
+.sensor-details dd {
+  font-size: 10px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.sensor-details dd {
+  font-weight: 700;
+}
+
+.sensor-lower-grid {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: 1.5fr 1fr;
+  margin-top: 22px;
+}
+
+.sensor-activity,
+.sensor-help {
+  border: 1px solid var(--line);
+  padding: 29px 31px;
+}
+
+.live-label {
+  align-items: center;
+  color: #86d69e;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.live-label i {
+  height: 7px;
+  width: 7px;
+}
+
+.activity-reading {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 25px 0 21px;
+}
+
+.activity-reading span,
+.activity-reading strong {
+  display: block;
+}
+
+.activity-reading span {
+  color: rgba(243, 237, 228, 0.55);
+  font-size: 9px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.activity-reading strong {
+  color: var(--cream);
+  font: 500 25px 'Barlow Condensed', sans-serif;
+  text-transform: uppercase;
+}
+
+.activity-note,
+.sensor-help p {
+  color: rgba(243, 237, 228, 0.65);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.activity-note {
+  border-top: 1px solid var(--line);
+  margin: 0;
+  padding-top: 17px;
+}
+
+.sensor-help {
+  background: var(--lilac);
+  color: var(--ink);
+}
+
+.sensor-help .eyebrow {
+  color: var(--ink);
+}
+
+.sensor-help h2 {
+  font: 500 43px 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.04em;
+  line-height: 0.88;
+  margin: 0 0 22px;
+  text-transform: uppercase;
+}
+
+.sensor-help h2 em {
+  color: var(--ink);
+}
+
+.sensor-help p {
+  color: rgba(23, 25, 26, 0.7);
+  max-width: 300px;
+}
+
+.sensor-help .outline-button {
+  border-color: var(--ink);
+  color: var(--ink);
+  margin-top: 8px;
+}
+
+.sensor-help .outline-button:hover,
+.sensor-help .outline-button:focus-visible {
+  background: var(--ink);
+  color: var(--lilac);
+}
+
+@media (max-width: 760px) {
+  .sensor-main {
+    padding-top: 48px;
+  }
+
+  .sensor-intro {
+    align-items: start;
+    flex-direction: column;
+    margin-bottom: 58px;
+  }
+
+  .sensor-grid,
+  .sensor-lower-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .connection-map {
+    gap: 0;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    margin-top: 34px;
+  }
+
+  .connection-node {
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .connection-line {
+    border-left: 1px dashed rgba(243, 237, 228, 0.5);
+    border-top: 0;
+    height: 46px;
+    width: 1px;
+  }
+
+  .connection-line span {
+    left: -3px;
+    top: 0;
+  }
+
+  .connection-line-motion span {
+    animation-name: signal-flow-vertical;
+    right: auto;
+  }
+
+  .connection-line-pressure span {
+    animation-name: signal-flow-vertical;
+  }
+}
+
+@media (max-width: 480px) {
+  .sensor-header {
+    align-items: start;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sensor-header .main-nav {
+    flex-wrap: wrap;
+  }
+
+  .sensor-intro h1 {
+    font-size: 72px;
+  }
+
+  .connection-status {
+    min-width: 100%;
+  }
+
+  .sensor-card,
+  .sensor-activity,
+  .sensor-help {
+    padding: 24px;
+  }
+
+  .activity-reading {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes signal-flow-vertical {
+  from {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.3;
+    transform: translateY(100%);
+  }
+}
+
+.basic-sensor-main {
+  margin: 0 auto;
+  max-width: 850px;
+  padding: 90px 5vw 120px;
+}
+
+.basic-sensor-main h1 {
+  color: var(--orange);
+  font: 600 clamp(72px, 12vw, 140px) 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.06em;
+  line-height: 0.8;
+  margin: 0 0 25px;
+  text-transform: uppercase;
+}
+
+.basic-sensor-intro {
+  color: rgba(243, 237, 228, 0.65);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 52px;
+}
+
+.basic-sensor-list {
+  display: grid;
+  gap: 14px;
+}
+
+.basic-sensor-card {
+  align-items: center;
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 22px;
+  grid-template-columns: 58px 1fr auto;
+  padding: 22px 25px;
+}
+
+.basic-sensor-icon {
+  align-items: center;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  display: flex;
+  font: 500 35px 'Barlow Condensed', sans-serif;
+  height: 58px;
+  justify-content: center;
+  width: 58px;
+}
+
+.basic-sensor-info h2 {
+  font: 500 29px 'Barlow Condensed', sans-serif;
+  margin: 0 0 5px;
+  text-transform: uppercase;
+}
+
+.basic-sensor-info p {
+  color: rgba(243, 237, 228, 0.55);
+  font-size: 10px;
+  margin: 0;
+}
+
+.basic-sensor-status {
+  align-items: center;
+  display: flex;
+  font-size: 10px;
+  gap: 8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.basic-sensor-status span {
+  border-radius: 50%;
+  display: block;
+  height: 9px;
+  width: 9px;
+}
+
+.is-connected {
+  color: #86d69e;
+}
+
+.is-connected span {
+  background: #86d69e;
+}
+
+.is-connecting {
+  color: var(--orange);
+}
+
+.is-connecting span {
+  animation: connecting-pulse 1.2s ease-in-out infinite;
+  background: var(--orange);
+}
+
+@keyframes connecting-pulse {
+  50% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+}
+
+@media (max-width: 600px) {
+  .basic-sensor-main {
+    padding-top: 60px;
+  }
+
+  .basic-sensor-card {
+    align-items: start;
+    grid-template-columns: 48px 1fr;
+    padding: 18px;
+  }
+
+  .basic-sensor-icon {
+    height: 48px;
+    width: 48px;
+  }
+
+  .basic-sensor-status {
+    grid-column: 2;
+  }
+}
+
 .error-page {
 background: rgba(23, 25, 26, 0.96);
 color: var(--cream);

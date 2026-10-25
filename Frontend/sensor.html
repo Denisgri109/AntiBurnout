@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anti-Burnout / Sensors</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;1,500;1,600&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body class="sensor-page basic-sensor-page">
+    <header class="site-header sensor-header">
+        <a class="brand" href="{{ url_for('home') }}">Anti-Burnout<span>.</span></a>
+        <nav class="main-nav" aria-label="Main navigation">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a class="active" href="{{ url_for('sensor') }}" aria-current="page">Sensor</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </nav>
+    </header>
+
+    <main class="basic-sensor-main">
+        <p class="eyebrow">Hardware connection</p>
+        <h1>Sensors</h1>
+        <p class="basic-sensor-intro">Connect your sensors to start tracking your desk activity.</p>
+
+        <section class="basic-sensor-list" aria-label="Sensor connection status">
+            <article class="basic-sensor-card">
+                <div class="basic-sensor-icon" aria-hidden="true">⌁</div>
+                <div class="basic-sensor-info">
+                    <h2>PIR motion sensor</h2>
+                    <p>Detects movement around your desk.</p>
+                </div>
+                <div class="basic-sensor-status is-connected">
+                    <span aria-hidden="true"></span>
+                    Connected
+                </div>
+            </article>
+
+            <article class="basic-sensor-card">
+                <div class="basic-sensor-icon" aria-hidden="true">+</div>
+                <div class="basic-sensor-info">
+                    <h2>Pressure sensor</h2>
+                    <p>Detects when you are sitting at your desk.</p>
+                </div>
+                <div class="basic-sensor-status is-connecting">
+                    <span aria-hidden="true"></span>
+                    Connecting...
+                </div>
+            </article>
+        </section>
+    </main>
+</body>
+
+</html>
