@@ -61,6 +61,11 @@ def dashboard_page(
     )
 
 
+@app.get("/Sensor", include_in_schema=False, name="sensor")
+def sensor_page(request: Request):
+    return templates.TemplateResponse(request, "sensor.html", {"title": "Sensor"})
+
+
 @app.post("/Dashboard", include_in_schema=False, name="dashboard_action")
 def dashboard_action(
     request: Request,
