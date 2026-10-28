@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException, status, Depends, Form
+from fastapi import FastAPI, Request, HTTPException, status, Depends, Form, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
@@ -12,6 +12,7 @@ from Database import models
 from Database.database import Base, engine, get_db
 from datetime import datetime
 import bcrypt
+from fastapi.middleware.cors import CORSMiddleware
 
 
 
@@ -24,6 +25,42 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="../Frontend"), name="static")
 templates = Jinja2Templates(directory="../Frontend")
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+pi_status = {"is_connected": False,"error_message": "Pi has not connected yet."}
+
+
+@app.websocket("/ws/pi")
+async def pi_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    global pi_status
+    pi_status["is_connected"] = True
+    pi_status["error_message"] = None
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            print(f"Received from Pi: {data}")
+            
+    except WebSocketDisconnect:
+        pi_status["is_connected"] = False
+        pi_status["error_message"] = "Connection lost: Raspberry Pi disconnected unexpectedly."
+    except Exception as e:
+        pi_status["is_connected"] = False
+        pi_status["error_message"] = f"Error: {str(e)}"
+
+
+
+@app.get("/api/status")
+def get_pi_status():
+    return pi_status
 
 
 @app.get("/",  include_in_schema=False, name="home")
@@ -40,6 +77,11 @@ def login_page(request: Request):
 @app.get("/Register",  include_in_schema=False, name="register")
 def register_page(request: Request):
     return templates.TemplateResponse(request, "Register.html", {"title": "Register"})
+
+
+@app.get("/Status", include_in_schema=False)
+def status_page(request: Request):
+    return templates.TemplateResponse(request, "Status.html", {"title": "Status"})
 
 
 @app.get("/Dashboard", include_in_schema=False)
