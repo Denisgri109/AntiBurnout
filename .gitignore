@@ -9,3 +9,7 @@ __pycache__/
 /Backend/Database/__pycache__
 /Backend/__pycache__
 >>>>>>> Stashed changes
+.env
+/.vscode
+/.vscode
+.vscode/sftp.json
