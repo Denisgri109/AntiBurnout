@@ -3,7 +3,7 @@
 ## Introduction 
 For our group project in UDP/IoT we have went with the idea where we measure the time spent on computers and give notifications to help users take more breaks via using raspberry PI 5 with PIR Motion sensor and a Pressure sensor. 
 
-<img src="Anti_Burnout_gif.gif" width="400" alt="Anti Burnout GIF">
+<img src="Anti_Burnout_gif.gif" width="100%" alt="Anti Burnout GIF">
 
 ## Why we went with this Idea? 
 The reason we went with this idea is that people who spend long periods on computers can forget to take breaks due to being focused on work or studies.
