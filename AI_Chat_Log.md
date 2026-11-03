@@ -3,6 +3,8 @@
 ## 2. Denis
 ### https://share.gemini.google/08jO2PRYgKHZ - Password hashing (bcrypt)
 ### https://share.gemini.google/4ep0B754VCyD - Connecting PI to website
+### https://share.gemini.google/puuO81RZVAU0 - Deploying AntiBurnout FastAPI on Oracle Cloudflare
+
 ## 3. Gvidonas
 ### https://share.gemini.google/YpBIaU8z3ZXr
 
