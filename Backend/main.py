@@ -213,7 +213,7 @@ def register_user(request: Request,db: Annotated[Session, Depends(get_db)],usern
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return templates.TemplateResponse(request, "Dashboard.html", {"new_user": new_user, "title": "User Dashboard"})
+    return templates.TemplateResponse(request, "dashboard.html", {"user": new_user, "title": "User Dashboard"})
 
 @app.post("/Login", include_in_schema=False)
 def login_user(request: Request,db: Annotated[Session, Depends(get_db)],email: str = Form(...),password: str = Form(...)): 
@@ -233,7 +233,7 @@ def login_user(request: Request,db: Annotated[Session, Depends(get_db)],email: s
             detail="Wrong email or password",
         )
 
-    return templates.TemplateResponse(request, "Dashboard.html", {"user": user, "title": "User Dashboard"})
+    return templates.TemplateResponse(request, "dashboard.html", {"user": user, "title": "User Dashboard"})
 
 
 
