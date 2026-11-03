@@ -70,23 +70,23 @@ def home(request: Request):
     return templates.TemplateResponse(request, "index.html", {"title": "Home"})
 
 
-@app.get("/Login",  include_in_schema=False, name="login")
+@app.get("/login",  include_in_schema=False, name="login")
 def login_page(request: Request):
     return templates.TemplateResponse(request, "Login.html", {"title": "Login"})
 
 
 
-@app.get("/Register",  include_in_schema=False, name="register")
+@app.get("/register",  include_in_schema=False, name="register")
 def register_page(request: Request):
     return templates.TemplateResponse(request, "Register.html", {"title": "Register"})
 
 
-@app.get("/Status", include_in_schema=False)
+@app.get("/status", include_in_schema=False)
 def status_page(request: Request):
     return templates.TemplateResponse(request, "Status.html", {"title": "Status"})
 
 
-@app.get("/Dashboard", include_in_schema=False, name="dashboard")
+@app.get("/dashboard", include_in_schema=False, name="dashboard")
 def dashboard_page(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
@@ -103,12 +103,12 @@ def dashboard_page(
     )
 
 
-@app.get("/Sensor", include_in_schema=False, name="sensor")
+@app.get("/sensor", include_in_schema=False, name="sensor")
 def sensor_page(request: Request):
     return templates.TemplateResponse(request, "sensor.html", {"title": "Sensor"})
 
 
-@app.post("/Dashboard", include_in_schema=False, name="dashboard_action")
+@app.post("/dashboard", include_in_schema=False, name="dashboard_action")
 def dashboard_action(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
@@ -130,7 +130,7 @@ def dashboard_action(
     query_values.extend(("completed_tasks", task) for task in tasks)
     query_string = urlencode(query_values)
     return RedirectResponse(
-        url=f"/Dashboard?{query_string}#tasks",
+        url=f"/dashboard?{query_string}#tasks",
         status_code=status.HTTP_303_SEE_OTHER,
     )
 
@@ -166,7 +166,7 @@ def render_dashboard(
     )
 
 
-@app.get("/Contact", include_in_schema=False, name="contact")
+@app.get("/contact", include_in_schema=False, name="contact")
 def contact_page(request: Request):
     return templates.TemplateResponse(request, "ContactUs.html", {"title": "Contact"})
 
@@ -199,7 +199,7 @@ def get_user(user_id: int, db: Annotated[Session, Depends(get_db)]):
 
 
 
-@app.post("/Register", include_in_schema=False)
+@app.post("/register", include_in_schema=False)
 def register_user(request: Request,db: Annotated[Session, Depends(get_db)],username: str = Form(...),email: str = Form(...),password: str = Form(...),passwordConfirmation: str = Form(...)):
 
     if password != passwordConfirmation:
@@ -215,7 +215,7 @@ def register_user(request: Request,db: Annotated[Session, Depends(get_db)],usern
     db.refresh(new_user)
     return templates.TemplateResponse(request, "dashboard.html", {"user": new_user, "title": "User Dashboard"})
 
-@app.post("/Login", include_in_schema=False)
+@app.post("/login", include_in_schema=False)
 def login_user(request: Request,db: Annotated[Session, Depends(get_db)],email: str = Form(...),password: str = Form(...)): 
     result = db.execute(select(models.User).where(models.User.email == email))
     user = result.scalars().first()
