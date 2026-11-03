@@ -8,8 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v=laptop-slide-height" />
+  <script src="{{ url_for('static', path='script.js') }}" defer></script>
 </head>
 <body class="login-page">
+  <button class="theme-toggle page-theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+    <span id="theme-icon" aria-hidden="true">☾</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
   <main class="login-shell" aria-label="Login page">
     <section class="login-card">
       <aside class="visual" aria-label="Brand visual panel">

@@ -7,6 +7,7 @@
 	<meta name="description" content="Anti-Burnout sensor dashboard for healthier screen-time rhythms." />
 	<title>Anti-Burnout / Dashboard</title>
 	<link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v=dashboard-dot-on-select" />
+	<script src="{{ url_for('static', path='script.js') }}" defer></script>
 	<link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,6 +37,10 @@
 		<main class="main" id="overview">
 			<nav class="dashboard-nav" aria-label="Dashboard page navigation">
 				<a class="dashboard-nav-home" href="{{ url_for('home') }}">Anti-Burnout<span>.</span></a>
+				<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+					<span id="theme-icon" aria-hidden="true">☾</span>
+					<span id="theme-label">Dark mode</span>
+				</button>
 				<div class="dashboard-nav-links">
 					<a href="{{ url_for('home') }}">Home</a>
 					<a class="active" href="#overview">Dashboard</a>

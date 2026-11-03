@@ -8,8 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;1,500;1,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+  <script src="{{ url_for('static', path='script.js') }}" defer></script>
 </head>
 <body class="error-page">
+  <button class="theme-toggle page-theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+    <span id="theme-icon" aria-hidden="true">☾</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
   <main class="error-overlay" aria-labelledby="error-title">
     <section class="error-card" role="alert">
       <span class="error-code">{{ status_code }}</span>
