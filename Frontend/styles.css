@@ -3359,3 +3359,28 @@ h2 em {
         margin: 16px auto;
       }
     }
+
+.basic-sensor-reading {
+  color: var(--orange) !important;
+  font-weight: 700;
+  margin-top: 6px !important;
+  text-transform: uppercase;
+}
+
+.sensor-test-button {
+  background: transparent;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  cursor: pointer;
+  font: 700 10px 'Space Mono', monospace;
+  margin-top: 10px;
+  padding: 7px 14px;
+  text-transform: uppercase;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sensor-test-button:hover,
+.sensor-test-button:focus-visible {
+  background: var(--orange);
+  color: var(--ink);
+}

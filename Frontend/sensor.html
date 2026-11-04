@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Anti-Burnout / Sensors</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v=live-sensors" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -34,7 +34,7 @@
     <main class="basic-sensor-main">
         <p class="eyebrow">Hardware connection</p>
         <h1>Sensors</h1>
-        <p class="basic-sensor-intro">Connect your sensors to start tracking your desk activity.</p>
+        <p class="basic-sensor-intro" id="pi-summary">Connect your sensors to start tracking your desk activity.</p>
 
         <section class="basic-sensor-list" aria-label="Sensor connection status">
             <article class="basic-sensor-card">
@@ -42,8 +42,12 @@
                 <div class="basic-sensor-info">
                     <h2>PIR motion sensor</h2>
                     <p>Detects movement around your desk.</p>
+                    <p class="basic-sensor-reading" id="pir-reading">Motion: —</p>
                 </div>
-                <button class="sensor-connect-button" type="button">Connect</button>
+                <div class="basic-sensor-status is-connecting" id="pir-status">
+                    <span aria-hidden="true"></span>
+                    Connecting...
+                </div>
             </article>
 
             <article class="basic-sensor-card">
@@ -51,11 +55,104 @@
                 <div class="basic-sensor-info">
                     <h2>Pressure sensor</h2>
                     <p>Detects when you are sitting at your desk.</p>
+                    <p class="basic-sensor-reading" id="pressure-reading">Seat: —</p>
                 </div>
-                <button class="sensor-connect-button" type="button">Connect</button>
+                <div class="basic-sensor-status is-connecting" id="pressure-status">
+                    <span aria-hidden="true"></span>
+                    Connecting...
+                </div>
+            </article>
+
+            <article class="basic-sensor-card">
+                <div class="basic-sensor-icon" aria-hidden="true">●</div>
+                <div class="basic-sensor-info">
+                    <h2>LED</h2>
+                    <p>Flashes as a visual break reminder.</p>
+                    <button class="sensor-test-button" type="button" data-device="led" data-action="blink">Test LED</button>
+                </div>
+                <div class="basic-sensor-status is-connecting" id="led-status">
+                    <span aria-hidden="true"></span>
+                    Connecting...
+                </div>
+            </article>
+
+            <article class="basic-sensor-card">
+                <div class="basic-sensor-icon" aria-hidden="true">♪</div>
+                <div class="basic-sensor-info">
+                    <h2>Buzzer</h2>
+                    <p>Beeps when it is time to take a break.</p>
+                    <button class="sensor-test-button" type="button" data-device="buzzer" data-action="beep">Test buzzer</button>
+                </div>
+                <div class="basic-sensor-status is-connecting" id="buzzer-status">
+                    <span aria-hidden="true"></span>
+                    Connecting...
+                </div>
             </article>
         </section>
     </main>
+
+    <script>
+        function setStatus(id, connected) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = `basic-sensor-status ${connected ? 'is-connected' : 'is-connecting'}`;
+            el.innerHTML = `<span aria-hidden="true"></span> ${connected ? 'Connected' : 'Connecting...'}`;
+        }
+
+        async function pollSensorStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const online = data.is_connected;
+
+                setStatus('pir-status', online && data.pir_connected);
+                setStatus('pressure-status', online && data.pressure_connected);
+                setStatus('led-status', online);
+                setStatus('buzzer-status', online);
+
+                const pirReading = document.getElementById('pir-reading');
+                if (pirReading) {
+                    pirReading.textContent = online
+                        ? `Motion: ${data.motion_detected ? 'Detected' : 'Still'}`
+                        : 'Motion: —';
+                }
+
+                const pressureReading = document.getElementById('pressure-reading');
+                if (pressureReading) {
+                    pressureReading.textContent = online
+                        ? `Seat: ${data.pressure_detected ? 'Occupied' : 'Empty'} (${Number(data.pressure_raw).toFixed(2)})`
+                        : 'Seat: —';
+                }
+
+                const piSummary = document.getElementById('pi-summary');
+                if (piSummary) {
+                    piSummary.textContent = online
+                        ? `Raspberry Pi online · last update ${data.last_seen ?? '—'}`
+                        : (data.error_message || 'Raspberry Pi offline.');
+                }
+            } catch (err) {
+                ['pir-status', 'pressure-status', 'led-status', 'buzzer-status'].forEach(id => setStatus(id, false));
+                const piSummary = document.getElementById('pi-summary');
+                if (piSummary) {
+                    piSummary.textContent = 'Cannot reach the Anti-Burnout server.';
+                }
+            }
+        }
+
+        document.querySelectorAll('.sensor-test-button').forEach(button => {
+            button.addEventListener('click', async () => {
+                const { device, action } = button.dataset;
+                const res = await fetch(`/api/actuator/${device}/${action}`, { method: 'POST' });
+                if (!res.ok) {
+                    const body = await res.json().catch(() => ({}));
+                    alert(body.detail || 'Could not reach the Raspberry Pi.');
+                }
+            });
+        });
+
+        setInterval(pollSensorStatus, 1000);
+        pollSensorStatus();
+    </script>
 </body>
 
 </html>
