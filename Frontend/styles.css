@@ -732,6 +732,9 @@ width: min(100%, 280px);
   --calendar-heading: #f3ede4;
   --card-text: #f3ede4;
   --card-muted: rgba(243, 237, 228, 0.65);
+  --task-background: #242728;
+  --task-text: #f3ede4;
+  --task-muted: rgba(243, 237, 228, 0.7);
   --contact-accent: #b9d5d1;
 }
 
@@ -749,6 +752,9 @@ width: min(100%, 280px);
   --calendar-heading: #17191a;
   --card-text: #17191a;
   --card-muted: #5d6260;
+  --task-background: #fffdfa;
+  --task-text: #17191a;
+  --task-muted: #5d6260;
   --contact-accent: #287c79;
 }
 
@@ -766,6 +772,9 @@ width: min(100%, 280px);
   --calendar-heading: #f3ede4;
   --card-text: #f3ede4;
   --card-muted: rgba(243, 237, 228, 0.65);
+  --task-background: #242728;
+  --task-text: #f3ede4;
+  --task-muted: rgba(243, 237, 228, 0.7);
   --contact-accent: #b9d5d1;
 }
 
@@ -2318,8 +2327,8 @@ h2 em {
 .task {
   align-items: center;
   border-left: 5px solid var(--orange);
-  background: #fffdfa;
-  color: var(--card-text);
+  background: var(--task-background);
+  color: var(--task-text);
   box-shadow: 0 9px 23px rgba(23, 25, 26, .07);
   display: flex;
   gap: 14px;
@@ -2350,18 +2359,18 @@ h2 em {
 
 .task-copy {
   flex: 1;
-  color: var(--card-text);
+  color: var(--task-text);
 }
 
 .task strong {
-  color: var(--card-text);
+  color: var(--task-text);
   display: block;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 20px;
 }
 
 .task span {
-  color: var(--card-muted);
+  color: var(--task-muted);
   display: block;
   font-size: 12px;
   margin-top: 4px;
@@ -2369,7 +2378,7 @@ h2 em {
 
 .task-check {
   background: transparent;
-  border: 1px solid #d9d2c9;
+  border: 1px solid var(--task-muted);
   border-radius: 50%;
   cursor: pointer;
   height: 26px;
