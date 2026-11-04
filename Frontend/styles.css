@@ -587,6 +587,22 @@
   margin: 0;
 }
 
+.sensor-connect-button {
+  background: transparent;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  cursor: pointer;
+  font: 700 10px 'Space Mono', monospace;
+  padding: 10px 16px;
+  text-transform: uppercase;
+}
+
+.sensor-connect-button:hover,
+.sensor-connect-button:focus-visible {
+  background: var(--orange);
+  color: #171513;
+}
+
 .basic-sensor-status {
   align-items: center;
   display: flex;
