@@ -9,6 +9,7 @@ load_dotenv()
 
 SERVER_URL = os.getenv("SERVER_URL", "ws://10.13.213.14:8000/ws/pi")
 PRESSURE_THRESHOLD = float(os.getenv("PRESSURE_THRESHOLD", "0.35"))
+PI_SECRET_KEY = os.getenv("PI_SECRET_KEY")
 
 pir = MotionSensor(23)
 pressure = MCP3008(0)
@@ -58,7 +59,8 @@ async def main():
     while True:
         try:
             print(f"Connecting to {SERVER_URL}...")
-            async with websockets.connect(SERVER_URL) as ws:
+            # Send the secret key securely in the HTTP headers during the handshake
+            async with websockets.connect(SERVER_URL, additional_headers={"X-Pi-Secret": PI_SECRET_KEY}) as ws:
                 print("Successfully connected to AntiBurnout backend!")
                 await asyncio.gather(send_readings(ws), receive_commands(ws))
         except Exception as e:

@@ -1,9 +1,12 @@
-from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 from urllib.parse import urlencode
 import json
 import bcrypt
+import os
+import jwt
+from dotenv import load_dotenv
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, Request, HTTPException, status, Depends, Form, Query, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
@@ -18,10 +21,24 @@ from sqlalchemy.orm import Session
 from Database import models, schemas
 from Database.database import Base, engine, get_db
 
+load_dotenv()
+
+# app will crash on startup if these are missing in .env
+SECRET_KEY = os.environ["SECRET_KEY"]
+PI_SECRET_KEY = os.environ["PI_SECRET_KEY"]
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Anti-Burnout")
+# Hide the API documentation completely
+app = FastAPI(
+    title="Anti-Burnout",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
+)
 
 FRONTEND_DIRECTORY = Path(__file__).resolve().parent.parent / "Frontend"
 app.mount("/static", StaticFiles(directory=FRONTEND_DIRECTORY), name="static")
@@ -29,11 +46,37 @@ templates = Jinja2Templates(directory=FRONTEND_DIRECTORY)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://antiburnout.online"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def get_current_user(request: Request, db: Annotated[Session, Depends(get_db)]):
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id_str = payload.get("sub")
+        if not user_id_str:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token structure")
+
+        user_id = int(user_id_str)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, ValueError):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Your login has expired, please log in again")
+
+    user = db.execute(select(models.User).where(models.User.id == user_id)).scalars().first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return user
+
+def verify_pi(request: Request):
+    api_key = request.headers.get("X-Pi-Secret")
+    if not api_key or api_key != PI_SECRET_KEY:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized hardware")
+
 
 # ---------------------------------------------------------------------------
 # Raspberry Pi Connection State
@@ -54,6 +97,12 @@ pi_socket: WebSocket | None = None
 
 @app.websocket("/ws/pi")
 async def pi_endpoint(websocket: WebSocket):
+    # Check headers securely so the key isn't in the URL
+    pi_secret = websocket.headers.get("X-Pi-Secret")
+    if pi_secret != PI_SECRET_KEY:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
     global pi_socket, pi_status
     await websocket.accept()
     pi_socket = websocket
@@ -79,20 +128,18 @@ async def pi_endpoint(websocket: WebSocket):
         pi_status["error_message"] = "Raspberry Pi disconnected."
     except Exception as e:
         pi_status["is_connected"] = False
-        pi_status["pir_connected"] = False
-        pi_status["pressure_connected"] = False
         pi_status["error_message"] = f"Error: {str(e)}"
     finally:
         pi_socket = None
-
 
 @app.get("/api/status")
 def get_pi_status():
     return pi_status
 
 
+# Only logged-in web users can hit this endpoint
 @app.post("/api/actuator/{device}/{action}")
-async def control_actuator(device: str, action: str):
+async def control_actuator(device: str, action: str, current_user: Annotated[models.User, Depends(get_current_user)]):
     if not pi_socket:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -100,7 +147,6 @@ async def control_actuator(device: str, action: str):
         )
     await pi_socket.send_text(json.dumps({"device": device, "action": action}))
     return {"status": "ok", "device": device, "action": action}
-
 
 # ---------------------------------------------------------------------------
 # Template / Page Routes
@@ -110,52 +156,47 @@ def home(request: Request):
     return templates.TemplateResponse(request, "index.html", {"title": "Home"})
 
 
-@app.get("/Sensor", include_in_schema=False, name="sensor")
+@app.get("/sensor", include_in_schema=False, name="sensor")
 def sensor_page(request: Request):
     return templates.TemplateResponse(request, "sensor.html", {"title": "Sensors"})
 
 
-@app.get("/Status", include_in_schema=False, name="status")
+@app.get("/status", include_in_schema=False, name="status")
 def status_page(request: Request):
     return templates.TemplateResponse(request, "Status.html", {"title": "Status"})
 
 
-@app.get("/Contact", include_in_schema=False, name="contact")
+@app.get("/contact", include_in_schema=False, name="contact")
 def contact_page(request: Request):
     return templates.TemplateResponse(request, "ContactUs.html", {"title": "Contact"})
 
 
-@app.get("/Login", include_in_schema=False, name="login")
+@app.get("/login", include_in_schema=False, name="login")
 def login_page(request: Request):
     return templates.TemplateResponse(request, "Login.html", {"title": "Login"})
 
 
-@app.get("/Register", include_in_schema=False, name="register")
+@app.get("/register", include_in_schema=False, name="register")
 def register_page(request: Request):
     return templates.TemplateResponse(request, "Register.html", {"title": "Register"})
 
 
-@app.get("/Dashboard", include_in_schema=False, name="dashboard")
+@app.get("/dashboard", include_in_schema=False, name="dashboard")
 def dashboard_page(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
-    user_id: int | None = None,
+    current_user: Annotated[models.User, Depends(get_current_user)],
     section: str | None = None,
     completed_tasks: Annotated[list[str] | None, Query()] = None,
 ):
-    user = None
-    sessions = []
-    if user_id is not None:
-        user = db.execute(select(models.User).where(models.User.id == user_id)).scalars().first()
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-        sessions = db.execute(select(models.Session).where(models.Session.user_id == user_id)).scalars().all()
+    # Only fetches sessions belonging to the logged-in user
+    sessions = db.execute(select(models.Session).where(models.Session.user_id == current_user.id)).scalars().all()
 
     return templates.TemplateResponse(
         request,
         "dashboard.html",
         {
-            "user": user,
+            "user": current_user,
             "sessions": sessions,
             "title": "User Dashboard",
             "selected_section": section,
@@ -163,11 +204,10 @@ def dashboard_page(
         },
     )
 
-
-@app.post("/Dashboard", include_in_schema=False, name="dashboard_action")
+@app.post("/dashboard", include_in_schema=False, name="dashboard_action")
 def dashboard_action(
     request: Request,
-    user_id: Annotated[int | None, Form()] = None,
+    current_user: Annotated[models.User, Depends(get_current_user)],
     section: Annotated[str | None, Form()] = None,
     task_id: Annotated[str | None, Form()] = None,
     completed_tasks: Annotated[list[str] | None, Form()] = None,
@@ -180,20 +220,22 @@ def dashboard_action(
             tasks.append(task_id)
 
     query_values = [("section", section or "tasks")]
-    if user_id is not None:
-        query_values.append(("user_id", str(user_id)))
     query_values.extend(("completed_tasks", task) for task in tasks)
     query_string = urlencode(query_values)
     return RedirectResponse(
-        url=f"/Dashboard?{query_string}#tasks",
+        url=f"/dashboard?{query_string}#tasks",
         status_code=status.HTTP_303_SEE_OTHER,
     )
-
 
 # ---------------------------------------------------------------------------
 # Auth / User Form Submissions
 # ---------------------------------------------------------------------------
-@app.post("/Register", include_in_schema=False)
+def create_access_token(user_id: int):
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    # JWT standard expects 'sub' to be a string
+    return jwt.encode({"sub": str(user_id), "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
+
+@app.post("/register", include_in_schema=False)
 def register_user(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
@@ -205,15 +247,25 @@ def register_user(
     if password != passwordConfirmation:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password doesn't match")
 
+    if not 3 <= len(username) <= 20:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username must be 3 to 20 characters")
+
+    # This stops the crash. checks for duplicates before creating
+    existing_user = db.execute(select(models.User).where((models.User.email == email) | (models.User.username == username))).scalars().first()
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email or Username already exists")
+
     hashed_password = get_password_hash(password)
     new_user = models.User(username=username, email=email, password_hash=hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return templates.TemplateResponse(request, "dashboard.html", {"user": new_user, "title": "User Dashboard"})
 
+    response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(key="access_token", value=create_access_token(new_user.id), httponly=True, secure=True, samesite="lax")
+    return response
 
-@app.post("/Login", include_in_schema=False)
+@app.post("/login", include_in_schema=False)
 def login_user(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
@@ -226,40 +278,29 @@ def login_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Wrong email or password",
         )
-    return templates.TemplateResponse(request, "dashboard.html", {"user": user, "title": "User Dashboard"})
 
+    response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(key="access_token", value=create_access_token(user.id), httponly=True, secure=True, samesite="lax")
+    return response
 
-@app.post("/api/user", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(user: schemas.UserCreate, db: Annotated[Session, Depends(get_db)]):
-    existing_user = db.execute(select(models.User).where(models.User.username == user.username)).scalars().first()
-    if existing_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists")
-
-    existing_email = db.execute(select(models.User).where(models.User.email == user.email)).scalars().first()
-    if existing_email:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
-
-    new_user = models.User(
-        username=user.username,
-        email=user.email,
-        password_hash=get_password_hash(user.password),
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
-
+@app.get("/logout", include_in_schema=False, name="logout")
+def logout_user():
+    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie("access_token")
+    return response
 
 @app.get("/api/user/{user_id}", response_model=schemas.UserResponse)
-def get_user(user_id: int, db: Annotated[Session, Depends(get_db)]):
+def get_user(user_id: int, db: Annotated[Session, Depends(get_db)], current_user: Annotated[models.User, Depends(get_current_user)]):
+    if current_user.id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this account")
+
     result = db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if user:
         return user
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-
-@app.post("/api/sensor_log", status_code=status.HTTP_201_CREATED)
+@app.post("/api/sensor_log", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_pi)])
 def create_sensor_log(
     session_id: int,
     pressure_detected: int,
@@ -282,7 +323,7 @@ def create_sensor_log(
     return new_log
 
 
-@app.post("/api/session/start", status_code=status.HTTP_201_CREATED)
+@app.post("/api/session/start", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_pi)])
 def start_session(user_id: int, db: Annotated[Session, Depends(get_db)]):
     new_session = models.Session(
         user_id=user_id,
@@ -294,8 +335,8 @@ def start_session(user_id: int, db: Annotated[Session, Depends(get_db)]):
     db.refresh(new_session)
     return new_session
 
-
-@app.post("/api/session/end/{session_id}")
+# only the Pi can end sessions
+@app.post("/api/session/end/{session_id}", dependencies=[Depends(verify_pi)])
 def end_session(session_id: int, db: Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.Session).where(models.Session.id == session_id))
     session = result.scalars().first()
