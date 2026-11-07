@@ -5,6 +5,7 @@
 ### https://share.gemini.google/4ep0B754VCyD - Connecting PI to website
 ### https://share.gemini.google/puuO81RZVAU0 - Deploying AntiBurnout FastAPI on Oracle Cloudflare
 ### https://share.gemini.google/7s1AGzP3OPK9 - Securing the website and Pi connection
+### https://share.gemini.google/aib0OpQPSIAS - Architecture Design
 
 ## 3. Gvidonas
 ### https://share.gemini.google/YpBIaU8z3ZXr
