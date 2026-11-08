@@ -28,3 +28,10 @@ their eyes while using a computer, imporving more healthier habits.
 ### Application Used - Sketchup
 <img src="case1.png" width="100%" alt="Case Design 1">
 <img src="case2.png" width="100%" alt="Case Design 2">
+
+## User Personas 
+<img width="792" height="1007" alt="image" src="https://github.com/user-attachments/assets/745a899f-8aaa-46ed-852b-fbd823c2a630" />
+<img width="792" height="1007" alt="image" src="https://github.com/user-attachments/assets/88c6503e-d912-46fb-b572-3c97232af230" />
+<img width="793" height="1033" alt="image" src="https://github.com/user-attachments/assets/36fd94a9-bd52-4f2d-bbaf-9a37027f1abd" />
+
+
