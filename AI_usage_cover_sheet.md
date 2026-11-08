@@ -1,5 +1,6 @@
 ## 1. Roman:
 [~$nAI_Declaration_Of_Use_Template(4).docx](https://github.com/user-attachments/files/33312993/nAI_Declaration_Of_Use_Template.4.docx)
+[M.S.GenAI_Declaration_Of_Use_Template.docx](https://github.com/user-attachments/files/34557772/M.S.GenAI_Declaration_Of_Use_Template.docx)
 
 ## 2. Denis:
 
