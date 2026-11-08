@@ -9,6 +9,7 @@
 
 ## 3. Gvidonas
 ### https://share.gemini.google/YpBIaU8z3ZXr
+## I accidentally deleted my chat history from Co-Pilot on visual studio code while cleaning my history and it was used for creating the Contact Us template and the Index Page and designing the error modals
 
 ## 4. Marius
 ### https://chatgpt.com/share/6acbe17c-73d8-83ed-a87c-aad39c01b691
