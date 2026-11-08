@@ -132,7 +132,7 @@ async def pi_endpoint(websocket: WebSocket):
     finally:
         pi_socket = None
 
-@app.get("/api/status")
+@app.get("/api/status", dependencies=[Depends(get_current_user)])
 def get_pi_status():
     return pi_status
 
@@ -156,12 +156,12 @@ def home(request: Request):
     return templates.TemplateResponse(request, "index.html", {"title": "Home"})
 
 
-@app.get("/sensor", include_in_schema=False, name="sensor")
+@app.get("/sensor", include_in_schema=False, name="sensor", dependencies=[Depends(get_current_user)])
 def sensor_page(request: Request):
     return templates.TemplateResponse(request, "sensor.html", {"title": "Sensors"})
 
 
-@app.get("/status", include_in_schema=False, name="status")
+@app.get("/status", include_in_schema=False, name="status", dependencies=[Depends(get_current_user)])
 def status_page(request: Request):
     return templates.TemplateResponse(request, "Status.html", {"title": "Status"})
 
