@@ -14,4 +14,9 @@
 [GenAI_Declaration_Of_Use_Template.docx](https://github.com/user-attachments/files/33312150/GenAI_Declaration_Of_Use_Template.docx)
 
 ## 4. Marius:
+
+**GCA1:**
 [M.S GenAI_Declaration_Of_Use_Template.docx](https://github.com/user-attachments/files/33313213/M.S.GenAI_Declaration_Of_Use_Template.docx)
+
+**GCA2:**
+[M.S.GenAI_Declaration_Of_Use_Template 2.docx](https://github.com/user-attachments/files/34557219/M.S.GenAI_Declaration_Of_Use_Template.2.docx)
