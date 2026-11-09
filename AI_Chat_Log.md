@@ -1,5 +1,6 @@
 ## 1. Roman
 ### https://share.gemini.google/OKQZfJ09oh4d
+### https://share.gemini.google/DRqxxSAzIBI3
 ## 2. Denis
 ### https://share.gemini.google/08jO2PRYgKHZ - Password hashing (bcrypt)
 ### https://share.gemini.google/4ep0B754VCyD - Connecting PI to website
