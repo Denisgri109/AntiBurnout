@@ -72,6 +72,12 @@ def get_current_user(request: Request, db: Annotated[Session, Depends(get_db)]):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
+def get_optional_current_user(request: Request, db: Annotated[Session, Depends(get_db)]):
+    try:
+        return get_current_user(request, db)
+    except HTTPException:
+        return None
+
 def verify_pi(request: Request):
     api_key = request.headers.get("X-Pi-Secret")
     if not api_key or api_key != PI_SECRET_KEY:
@@ -152,13 +158,19 @@ async def control_actuator(device: str, action: str, current_user: Annotated[mod
 # Template / Page Routes
 # ---------------------------------------------------------------------------
 @app.get("/", include_in_schema=False, name="home")
-def home(request: Request):
-    return templates.TemplateResponse(request, "index.html", {"title": "Home"})
+def home(
+    request: Request,
+    current_user: Annotated[models.User | None, Depends(get_optional_current_user)],
+):
+    return templates.TemplateResponse(request, "index.html", {"title": "Home", "user": current_user})
 
 
-@app.get("/sensor", include_in_schema=False, name="sensor", dependencies=[Depends(get_current_user)])
-def sensor_page(request: Request):
-    return templates.TemplateResponse(request, "sensor.html", {"title": "Sensors"})
+@app.get("/sensor", include_in_schema=False, name="sensor")
+def sensor_page(
+    request: Request,
+    current_user: Annotated[models.User, Depends(get_current_user)],
+):
+    return templates.TemplateResponse(request, "sensor.html", {"title": "Sensors", "user": current_user})
 
 
 @app.get("/status", include_in_schema=False, name="status", dependencies=[Depends(get_current_user)])

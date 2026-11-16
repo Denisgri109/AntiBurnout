@@ -17,7 +17,7 @@
       <a href="#for-you">For you</a>
       <a href="{{ url_for('dashboard') }}">Dashboard</a>
       <a href="{{ url_for('sensor') }}">Sensor</a>
-      <a href="{{ url_for('login') }}">Login</a>
+      {% if not user %}<a href="{{ url_for('login') }}">Login</a>{% endif %}
       <a href="{{ url_for('contact') }}">Contact</a>
     </nav>
     <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">
