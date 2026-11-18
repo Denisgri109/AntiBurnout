@@ -7,7 +7,7 @@
 	<meta name="description" content="Anti-Burnout sensor dashboard for healthier screen-time rhythms." />
 	<title>Anti-Burnout / Dashboard</title>
 	<link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v=dashboard-redo" />
-	<script src="{{ url_for('static', path='script.js') }}" defer></script>
+	<script src="{{ url_for('static', path='script.js') }}?v=dashboard-sensors" defer></script>
 	<link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,6 +27,7 @@
 			<nav class="nav" aria-label="Dashboard navigation">
 				<a class="{% if selected_section == 'overview' %}active selected{% endif %}" {% if selected_section == 'overview' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=overview#overview">Dashboard</a>
 				<a class="{% if selected_section == 'insights' %}active selected{% endif %}" {% if selected_section == 'insights' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=insights#insights">Insights</a>
+				<a href="#sensors">Sensors</a>
 				<a class="{% if selected_section == 'settings' %}active selected{% endif %}" {% if selected_section == 'settings' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=settings#settings">Settings</a>
 
 			
@@ -101,6 +102,53 @@
 					</div>
 				</section>
 			</div>
+
+			<section class="dashboard-sensors" id="sensors" aria-labelledby="dashboard-sensors-title">
+				<div class="dashboard-sensor-heading">
+					<p class="eyebrow">Hardware connection</p>
+					<h2 id="dashboard-sensors-title">Sensors</h2>
+					<p class="basic-sensor-intro" id="pi-summary">Connect your sensors to start tracking your desk activity.</p>
+				</div>
+
+				<div class="basic-sensor-list" aria-label="Sensor connection status">
+					<article class="basic-sensor-card">
+						<div class="basic-sensor-icon" aria-hidden="true">⌁</div>
+						<div class="basic-sensor-info">
+							<h2>PIR motion sensor</h2>
+							<p>Detects movement around your desk.</p>
+							<p class="basic-sensor-reading" id="pir-reading">Motion: —</p>
+						</div>
+						<div class="basic-sensor-status is-connecting" id="pir-status"><span></span> Connecting...</div>
+					</article>
+					<article class="basic-sensor-card">
+						<div class="basic-sensor-icon" aria-hidden="true">+</div>
+						<div class="basic-sensor-info">
+							<h2>Pressure sensor</h2>
+							<p>Detects when you are sitting at your desk.</p>
+							<p class="basic-sensor-reading" id="pressure-reading">Seat: —</p>
+						</div>
+						<div class="basic-sensor-status is-connecting" id="pressure-status"><span></span> Connecting...</div>
+					</article>
+					<article class="basic-sensor-card">
+						<div class="basic-sensor-icon" aria-hidden="true">●</div>
+						<div class="basic-sensor-info">
+							<h2>LED</h2>
+							<p>Flashes as a visual break reminder.</p>
+							<button class="sensor-test-button" type="button" data-device="led" data-action="blink">Test LED</button>
+						</div>
+						<div class="basic-sensor-status is-connecting" id="led-status"><span></span> Connecting...</div>
+					</article>
+					<article class="basic-sensor-card">
+						<div class="basic-sensor-icon" aria-hidden="true">♪</div>
+						<div class="basic-sensor-info">
+							<h2>Buzzer</h2>
+							<p>Beeps when it is time to take a break.</p>
+							<button class="sensor-test-button" type="button" data-device="buzzer" data-action="beep">Test buzzer</button>
+						</div>
+						<div class="basic-sensor-status is-connecting" id="buzzer-status"><span></span> Connecting...</div>
+					</article>
+				</div>
+			</section>
 		</main>
 
 		<aside class="calendar" aria-labelledby="calendar-title">
@@ -135,6 +183,52 @@
 		</aside>
 	</div>
 	<div class="toast" id="toast" role="status" aria-live="polite">Time to stand up and take a break.</div>
+	<script>
+		function setSensorStatus(id, connected) {
+			const el = document.getElementById(id);
+			if (!el) return;
+			el.className = `basic-sensor-status ${connected ? 'is-connected' : 'is-connecting'}`;
+			el.innerHTML = `<span></span> ${connected ? 'Connected' : 'Connecting...'}`;
+		}
+
+		async function pollDashboardSensorStatus() {
+			try {
+				const res = await fetch('/api/status');
+				if (!res.ok) throw new Error('Sensor status unavailable');
+				const data = await res.json();
+				const online = data.is_connected;
+				setSensorStatus('pir-status', online && data.pir_connected);
+				setSensorStatus('pressure-status', online && data.pressure_connected);
+				setSensorStatus('led-status', online);
+				setSensorStatus('buzzer-status', online);
+				document.getElementById('pir-reading').textContent = online
+					? `Motion: ${data.motion_detected ? 'Detected' : 'Still'}`
+					: 'Motion: —';
+				document.getElementById('pressure-reading').textContent = online
+					? `Seat: ${data.pressure_detected ? 'Occupied' : 'Empty'} (${Number(data.pressure_raw).toFixed(2)})`
+					: 'Seat: —';
+				document.getElementById('pi-summary').textContent = online
+					? `Raspberry Pi online · last update ${data.last_seen ?? '—'}`
+					: (data.error_message || 'Raspberry Pi offline.');
+			} catch (err) {
+				['pir-status', 'pressure-status', 'led-status', 'buzzer-status'].forEach(id => setSensorStatus(id, false));
+				document.getElementById('pi-summary').textContent = 'Cannot reach the Anti-Burnout server.';
+			}
+		}
+
+		document.querySelectorAll('.sensor-test-button').forEach(button => {
+			button.addEventListener('click', async () => {
+				const res = await fetch(`/api/actuator/${button.dataset.device}/${button.dataset.action}`, { method: 'POST' });
+				if (!res.ok) {
+					const body = await res.json().catch(() => ({}));
+					alert(body.detail || 'Could not reach the Raspberry Pi.');
+				}
+			});
+		});
+
+		setInterval(pollDashboardSensorStatus, 1000);
+		pollDashboardSensorStatus();
+	</script>
 </body>
 
 </html>

@@ -583,7 +583,7 @@
 
 .basic-sensor-info p {
   color: rgba(243, 237, 228, 0.55);
-  font-size: 10px;
+  font-size: 12px;
   margin: 0;
 }
 
@@ -606,7 +606,7 @@
 .basic-sensor-status {
   align-items: center;
   display: flex;
-  font-size: 10px;
+  font-size: 12px;
   gap: 8px;
   text-transform: uppercase;
   white-space: nowrap;
@@ -643,7 +643,21 @@
   }
 }
 
+@media (max-width: 800px) {
+  .dashboard-sensors {
+    padding: 85px 7.4vw;
+  }
+
+  .dashboard-sensor-heading h2 {
+    font-size: clamp(58px, 18vw, 82px);
+  }
+}
+
 @media (max-width: 600px) {
+  .dashboard-sensors {
+    padding: 64px 5vw;
+  }
+
   .basic-sensor-main {
     padding-top: 60px;
   }
@@ -863,7 +877,7 @@ a {
 .brand {
   align-items: center;
   display: inline-flex;
-  font-size: 15px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.06em;
 }
@@ -878,6 +892,9 @@ a {
   align-items: stretch;
   display: flex;
   gap: 8px;
+  left: 42%;
+  position: absolute;
+  transform: translateX(-50%);
 }
 
 .main-nav a {
@@ -963,7 +980,7 @@ a {
 }
 
 .eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   margin: 0 0 20px;
   text-transform: uppercase;
@@ -986,7 +1003,7 @@ h2 em {
 }
 
 .hero-text {
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1.6;
   margin: 0 0 27px;
   max-width: 330px;
@@ -994,10 +1011,10 @@ h2 em {
 
 .outline-button {
   border: 1px solid var(--orange);
-  border-radius: 50%;
+  border-radius: 0;
   color: var(--orange);
   display: inline-flex;
-  font-size: 11px;
+  font-size: 13px;
   justify-content: center;
   padding: 15px 26px;
   text-transform: uppercase;
@@ -1092,6 +1109,25 @@ h2 em {
   grid-template-columns: 0.8fr 1.2fr;
 }
 
+.dashboard-sensors {
+  border-top: 1px solid var(--line);
+  margin-top: 70px;
+  padding: 70px 0 20px;
+}
+
+.dashboard-sensor-heading {
+  margin-bottom: 30px;
+}
+
+.dashboard-sensor-heading h2 {
+  color: var(--orange);
+  font: 600 clamp(72px, 10vw, 140px) 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.06em;
+  line-height: 0.85;
+  margin: 0 0 24px;
+  text-transform: uppercase;
+}
+
 .section-intro h2,
 .audience-heading h2,
 .how-section h2 {
@@ -1104,22 +1140,23 @@ h2 em {
 }
 
 .section-intro > p:last-child {
-  font-size: 12px;
+  font-size: 17px;
   line-height: 1.7;
   max-width: 310px;
 }
 
 .usage-panel {
+  align-self: start;
   background: var(--panel);
   color: var(--text);
   min-width: 0;
-  padding: 28px;
+  padding: 40px;
 }
 
 .panel-topline {
   border-bottom: 1px solid var(--line);
   display: flex;
-  font-size: 10px;
+  font-size: 13px;
   justify-content: space-between;
   padding-bottom: 18px;
   text-transform: uppercase;
@@ -1139,7 +1176,7 @@ h2 em {
   align-items: center;
   display: flex;
   gap: 8vw;
-  padding: 52px 5%;
+  padding: 70px 5%;
 }
 
 .usage-ring {
@@ -1170,26 +1207,26 @@ h2 em {
 
 .usage-ring strong {
   display: block;
-  font-size: 25px;
+  font-size: 28px;
 }
 
 .usage-ring small {
   color: var(--muted-text);
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 9px;
   text-transform: uppercase;
 }
 
 .note-label {
   color: var(--orange);
-  font-size: 10px;
+  font-size: 13px;
   text-transform: uppercase;
 }
 
 .usage-notes h3 {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 38px;
+  font-size: 41px;
   line-height: 0.85;
   margin: 15px 0 28px;
   text-transform: uppercase;
@@ -1225,7 +1262,7 @@ h2 em {
   border: 0;
   color: var(--ink);
   cursor: pointer;
-  font: 700 11px 'Space Mono', monospace;
+  font: 700 14px 'Space Mono', monospace;
   padding: 16px 20px;
   text-align: left;
   text-transform: uppercase;
@@ -1294,7 +1331,7 @@ h2 em {
 }
 
 .card-number {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .card-icon {
@@ -1314,8 +1351,8 @@ h2 em {
 }
 
 .audience-card p {
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.6;
   max-width: 230px;
 }
 
@@ -1460,6 +1497,8 @@ h2 em {
     position: absolute;
     right: 0;
     top: 100%;
+    transform: none;
+    z-index: 20;
   }
 
   .menu-button {
@@ -1859,11 +1898,11 @@ h2 em {
   }
 
   .hero-text {
-    font-size: 11px;
+    font-size: 14px;
   }
 
   .outline-button {
-    font-size: 10px;
+    font-size: 12px;
     padding: 13px 20px;
   }
 
@@ -2780,7 +2819,7 @@ h2 em {
   .usage-ring small,
   .panel-topline,
   .check-in-message {
-    font-size: 8px;
+    font-size: 11px;
   }
 
   .usage-notes h3 {
@@ -3372,6 +3411,7 @@ h2 em {
 
 .basic-sensor-reading {
   color: var(--orange) !important;
+  font-size: 12px !important;
   font-weight: 700;
   margin-top: 6px !important;
   text-transform: uppercase;
@@ -3382,7 +3422,7 @@ h2 em {
   border: 1px solid var(--orange);
   color: var(--orange);
   cursor: pointer;
-  font: 700 10px 'Space Mono', monospace;
+  font: 700 12px 'Space Mono', monospace;
   margin-top: 10px;
   padding: 7px 14px;
   text-transform: uppercase;

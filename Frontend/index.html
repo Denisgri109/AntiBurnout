@@ -7,7 +7,7 @@
   <title>Anti-Burnout| Screen Time Awareness</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', path='Images/Picture1.png') }}" />
   <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
-  <script src="{{ url_for('static', path='script.js') }}" defer></script>
+  <script src="{{ url_for('static', path='script.js') }}?v=mobile-menu" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -16,7 +16,6 @@
       <a href="#how-it-works">How it works</a>
       <a href="#for-you">For you</a>
       <a href="{{ url_for('dashboard') }}">Dashboard</a>
-      <a href="{{ url_for('sensor') }}">Sensor</a>
       {% if not user %}<a href="{{ url_for('login') }}">Login</a>{% endif %}
       <a href="{{ url_for('contact') }}">Contact</a>
     </nav>
@@ -82,5 +81,6 @@
   </main>
 
   <footer class="site-footer"><a class="brand" href="#top">Anti-Burnout<span>.</span></a><p>Designed for a better relationship with your devices.</p><span>© 2026 TEMPO</span></footer>
+
 </body>
 </html>

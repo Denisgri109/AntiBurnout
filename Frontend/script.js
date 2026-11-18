@@ -13,27 +13,54 @@
   const themeIcon = document.getElementById("theme-icon");
   const themeLabel = document.getElementById("theme-label");
 
-  if (!toggleButton) {
-    return;
+  if (toggleButton && themeIcon && themeLabel) {
+    const applyTheme = (theme) => {
+      const isDark = theme === "dark";
+
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      themeIcon.textContent = isDark ? "☀" : "☾";
+      themeLabel.textContent = isDark ? "Light mode" : "Dark mode";
+      toggleButton.setAttribute(
+        "aria-label",
+        isDark ? "Switch to light mode" : "Switch to dark mode"
+      );
+    };
+
+    applyTheme(initialTheme);
+
+    toggleButton.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      applyTheme(currentTheme === "dark" ? "light" : "dark");
+    });
   }
 
-  const applyTheme = (theme) => {
-    const isDark = theme === "dark";
+  const menuButton = document.querySelector(".menu-button");
+  const navigation = document.querySelector(".main-nav");
 
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-    themeIcon.textContent = isDark ? "☀" : "☾";
-    themeLabel.textContent = isDark ? "Light mode" : "Dark mode";
-    toggleButton.setAttribute(
-      "aria-label",
-      isDark ? "Switch to light mode" : "Switch to dark mode"
-    );
-  };
+  if (menuButton && navigation) {
+    const closeMenu = () => {
+      navigation.classList.remove("is-open");
+      menuButton.setAttribute("aria-expanded", "false");
+      menuButton.setAttribute("aria-label", "Open navigation");
+    };
 
-  applyTheme(initialTheme);
+    menuButton.addEventListener("click", () => {
+      const isOpen = navigation.classList.toggle("is-open");
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+    });
 
-  toggleButton.addEventListener("click", () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    applyTheme(currentTheme === "dark" ? "light" : "dark");
-  });
+    navigation.addEventListener("click", (event) => {
+      if (event.target.closest("a")) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    });
+  }
 })();
