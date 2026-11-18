@@ -665,9 +665,13 @@
 }
 
 .error-page {
-background: rgba(23, 25, 26, 0.96);
-color: var(--cream);
-min-height: 100vh;
+  background: rgba(23, 25, 26, 0.96);
+  color: var(--cream);
+  min-height: 100vh;
+}
+
+.error-page .theme-toggle {
+  color: #f3ede4;
 }
 
 .error-overlay {
