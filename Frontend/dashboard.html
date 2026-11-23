@@ -25,19 +25,16 @@
 				<h2>{{ user.username if user else "Sarah Connor" }}</h2>
 			</div>
 			<nav class="nav" aria-label="Dashboard navigation">
+				<a href="{{ url_for('home') }}">Home</a>
 				<a class="{% if selected_section == 'overview' %}active selected{% endif %}" {% if selected_section == 'overview' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=overview#overview">Dashboard</a>
-				<a class="{% if selected_section == 'insights' %}active selected{% endif %}" {% if selected_section == 'insights' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=insights#insights">Insights</a>
-				<a href="#sensors">Sensors</a>
-				<a class="{% if selected_section == 'settings' %}active selected{% endif %}" {% if selected_section == 'settings' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=settings#settings">Settings</a>
-
-			
+				<a class="{% if selected_section == 'statistics' %}active selected{% endif %}" {% if selected_section == 'statistics' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=statistics#statistics">Statistics</a>
+				<a class="{% if selected_section == 'sensors' %}active selected{% endif %}" {% if selected_section == 'sensors' %}aria-current="page"{% endif %} href="{{ url_for('dashboard') }}?section=sensors#sensors">Sensors</a>
 				<a href="{{ url_for('logout') }}" style="margin-top: auto; color: #ff5c5c;">Logout</a>
 			</nav>
 		</aside>
 
 		<main class="main" id="overview">
 			<nav class="dashboard-nav" aria-label="Dashboard page navigation">
-				
 				<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">
 					<span id="theme-icon" aria-hidden="true">☾</span>
 					<span id="theme-label">Dark mode</span>
@@ -45,7 +42,7 @@
 			</nav>
 			<header class="topbar">
 				<div>
-					<p class="eyebrow">Monday, 20 October 2026</p>
+					<p class="eyebrow" id="dashboard-date-time">Loading date and time...</p>
 					<h1>Hello, {{ user.username if user else "Sarah" }}.</h1>
 					<p class="date">A calmer rhythm starts with noticing.</p>
 				</div>
@@ -53,7 +50,7 @@
 
 			<section aria-labelledby="projects-title">
 				<div class="section-heading">
-					<h2 id="projects-title">Your rhythm</h2><a href="#insights">VIEW INSIGHTS ↘</a>
+					<h2 id="projects-title">Your rhythm</h2>
 				</div>
 				<div class="session-history">
 				<h3>Recent Sessions</h3>
@@ -86,7 +83,7 @@
 			</section>
 
 			<div class="lower-grid">
-				<section id="insights" aria-labelledby="stats-title">
+				<section id="statistics" aria-labelledby="stats-title">
 					<div class="section-heading">
 						<h2 id="stats-title">Statistics</h2>
 					</div>
@@ -184,6 +181,18 @@
 	</div>
 	<div class="toast" id="toast" role="status" aria-live="polite">Time to stand up and take a break.</div>
 	<script>
+		function updateDashboardDateTime() {
+			const dateTimeElement = document.getElementById('dashboard-date-time');
+			if (!dateTimeElement) return;
+
+			dateTimeElement.textContent = new Intl.DateTimeFormat(undefined, {
+				weekday: 'long',
+				day: '2-digit',
+				month: 'long',
+				year: 'numeric'
+			}).format(new Date());
+		}
+
 		function setSensorStatus(id, connected) {
 			const el = document.getElementById(id);
 			if (!el) return;
@@ -226,6 +235,7 @@
 			});
 		});
 
+		updateDashboardDateTime();
 		setInterval(pollDashboardSensorStatus, 1000);
 		pollDashboardSensorStatus();
 	</script>

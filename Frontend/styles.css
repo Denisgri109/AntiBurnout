@@ -2118,14 +2118,18 @@ h2 em {
 }
 
 .nav a:nth-child(2) {
-  border-color: var(--blue);
+  border-color: rgba(243, 237, 228, .28);
 }
 
 .nav a:nth-child(3) {
-  border-color: var(--lilac);
+  border-color: var(--blue);
 }
 
 .nav a:nth-child(4) {
+  border-color: var(--lilac);
+}
+
+.nav a:nth-child(5) {
   border-color: var(--cream);
 }
 
