@@ -17,7 +17,7 @@
 
 <body class="sensor-page basic-sensor-page">
     <header class="site-header sensor-header">
-        <a class="brand" href="{{ url_for('home') }}">Anti-Burnout<span>.</span></a>
+        <a class="brand" href="{{ url_for('home') }}">Anti-Burnout</a>
         <nav class="main-nav" aria-label="Main navigation">
             <a href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
@@ -34,19 +34,19 @@
     <main class="basic-sensor-main">
         <p class="eyebrow">Hardware connection</p>
         <h1>Sensors</h1>
-        <p class="basic-sensor-intro" id="pi-summary">Connect your sensors to start tracking your desk activity.</p>
+        <p class="basic-sensor-intro" id="pi-summary">Connect your sensors to start tracking your desk activity</p>
 
         <section class="basic-sensor-list" aria-label="Sensor connection status">
             <article class="basic-sensor-card">
                 <div class="basic-sensor-icon" aria-hidden="true">⌁</div>
                 <div class="basic-sensor-info">
                     <h2>PIR motion sensor</h2>
-                    <p>Detects movement around your desk.</p>
+                    <p>Detects movement around your desk</p>
                     <p class="basic-sensor-reading" id="pir-reading">Motion: —</p>
                 </div>
                 <div class="basic-sensor-status is-connecting" id="pir-status">
                     <span aria-hidden="true"></span>
-                    Connecting...
+                    Connecting
                 </div>
             </article>
 
@@ -54,12 +54,12 @@
                 <div class="basic-sensor-icon" aria-hidden="true">+</div>
                 <div class="basic-sensor-info">
                     <h2>Pressure sensor</h2>
-                    <p>Detects when you are sitting at your desk.</p>
+                    <p>Detects when you are sitting at your desk</p>
                     <p class="basic-sensor-reading" id="pressure-reading">Seat: —</p>
                 </div>
                 <div class="basic-sensor-status is-connecting" id="pressure-status">
                     <span aria-hidden="true"></span>
-                    Connecting...
+                    Connecting
                 </div>
             </article>
 
@@ -67,12 +67,12 @@
                 <div class="basic-sensor-icon" aria-hidden="true">●</div>
                 <div class="basic-sensor-info">
                     <h2>LED</h2>
-                    <p>Flashes as a visual break reminder.</p>
+                    <p>Flashes as a visual break reminder</p>
                     <button class="sensor-test-button" type="button" data-device="led" data-action="blink">Test LED</button>
                 </div>
                 <div class="basic-sensor-status is-connecting" id="led-status">
                     <span aria-hidden="true"></span>
-                    Connecting...
+                    Connecting
                 </div>
             </article>
 
@@ -80,12 +80,12 @@
                 <div class="basic-sensor-icon" aria-hidden="true">♪</div>
                 <div class="basic-sensor-info">
                     <h2>Buzzer</h2>
-                    <p>Beeps when it is time to take a break.</p>
+                    <p>Beeps when it is time to take a break</p>
                     <button class="sensor-test-button" type="button" data-device="buzzer" data-action="beep">Test buzzer</button>
                 </div>
                 <div class="basic-sensor-status is-connecting" id="buzzer-status">
                     <span aria-hidden="true"></span>
-                    Connecting...
+                    Connecting
                 </div>
             </article>
         </section>
@@ -96,7 +96,7 @@
             const el = document.getElementById(id);
             if (!el) return;
             el.className = `basic-sensor-status ${connected ? 'is-connected' : 'is-connecting'}`;
-            el.innerHTML = `<span aria-hidden="true"></span> ${connected ? 'Connected' : 'Connecting...'}`;
+            el.innerHTML = `<span aria-hidden="true"></span> ${connected ? 'Connected' : 'Connecting'}`;
         }
 
         async function pollSensorStatus() {
@@ -128,13 +128,13 @@
                 if (piSummary) {
                     piSummary.textContent = online
                         ? `Raspberry Pi online · last update ${data.last_seen ?? '—'}`
-                        : (data.error_message || 'Raspberry Pi offline.');
+                        : (data.error_message || 'Raspberry Pi offline');
                 }
             } catch (err) {
                 ['pir-status', 'pressure-status', 'led-status', 'buzzer-status'].forEach(id => setStatus(id, false));
                 const piSummary = document.getElementById('pi-summary');
                 if (piSummary) {
-                    piSummary.textContent = 'Cannot reach the Anti-Burnout server.';
+                    piSummary.textContent = 'Cannot reach the Anti-Burnout server';
                 }
             }
         }
@@ -145,7 +145,7 @@
                 const res = await fetch(`/api/actuator/${device}/${action}`, { method: 'POST' });
                 if (!res.ok) {
                     const body = await res.json().catch(() => ({}));
-                    alert(body.detail || 'Could not reach the Raspberry Pi.');
+                    alert(body.detail || 'Could not reach the Raspberry Pi');
                 }
             });
         });

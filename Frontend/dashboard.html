@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="description" content="Anti-Burnout sensor dashboard for healthier screen-time rhythms." />
+	<meta name="description" content="Anti-Burnout sensor dashboard for healthier screen-time rhythms" />
 	<title>Anti-Burnout / Dashboard</title>
 	<link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v=dashboard-redo" />
 	<script src="{{ url_for('static', path='script.js') }}?v=dashboard-sensors" defer></script>
@@ -19,7 +19,7 @@
 <body>
 	<div class="app">
 		<aside class="sidebar">
-			<a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">▮▮</span> Anti-Burnout<span>.</span></a>
+			<a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">▮▮</span> Anti-Burnout</a>
 			<div class="profile">
 				<div class="profile-avatar" aria-hidden="true">{{ user.username[:2]|upper if user else "SC" }}</div>
 				<h2>{{ user.username if user else "Sarah Connor" }}</h2>
@@ -42,9 +42,9 @@
 			</nav>
 			<header class="topbar">
 				<div>
-					<p class="eyebrow" id="dashboard-date-time">Loading date and time...</p>
-					<h1>Hello, {{ user.username if user else "Sarah" }}.</h1>
-					<p class="date">A calmer rhythm starts with noticing.</p>
+					<p class="eyebrow" id="dashboard-date-time">Loading date and time</p>
+					<h1>Hello, {{ user.username if user else "Sarah" }}</h1>
+					<p class="date">A calmer rhythm starts with noticing</p>
 				</div>
 			</header>
 
@@ -57,7 +57,7 @@
 					{% for s in sessions %}
 						<p>Session #{{ s.id }} — Started: {{ s.start_time }} (Status: {{ s.status }})</p>
 					{% else %}
-							<p>No desk sessions recorded yet.</p>
+							<p>No desk sessions recorded yet</p>
 					{% endfor %}
 				</div>
 				<div class="project-grid">
@@ -93,8 +93,8 @@
 						<div class="stat"><strong>30 m</strong><span>REMINDER AFTER</span></div>
 					</div>
 					<div class="break-card">
-						<h3>Next reminder<br /><em>in 08 minutes.</em></h3>
-						<p>Your Anti-Burnout sensor noticed a long stretch of stillness.</p><button id="pause-button"
+						<h3>Next reminder<br /><em>in 08 minutes</em></h3>
+						<p>Your Anti-Burnout sensor noticed a long stretch of stillness</p><button id="pause-button"
 							type="button">Pause reminders</button>
 					</div>
 				</section>
@@ -104,7 +104,7 @@
 				<div class="dashboard-sensor-heading">
 					<p class="eyebrow">Hardware connection</p>
 					<h2 id="dashboard-sensors-title">Sensors</h2>
-					<p class="basic-sensor-intro" id="pi-summary">Connect your sensors to start tracking your desk activity.</p>
+					<p class="basic-sensor-intro" id="pi-summary">Connect your sensors to start tracking your desk activity</p>
 				</div>
 
 				<div class="basic-sensor-list" aria-label="Sensor connection status">
@@ -112,37 +112,37 @@
 						<div class="basic-sensor-icon" aria-hidden="true">⌁</div>
 						<div class="basic-sensor-info">
 							<h2>PIR motion sensor</h2>
-							<p>Detects movement around your desk.</p>
+							<p>Detects movement around your desk</p>
 							<p class="basic-sensor-reading" id="pir-reading">Motion: —</p>
 						</div>
-						<div class="basic-sensor-status is-connecting" id="pir-status"><span></span> Connecting...</div>
+						<div class="basic-sensor-status is-connecting" id="pir-status"><span></span> Connecting</div>
 					</article>
 					<article class="basic-sensor-card">
 						<div class="basic-sensor-icon" aria-hidden="true">+</div>
 						<div class="basic-sensor-info">
 							<h2>Pressure sensor</h2>
-							<p>Detects when you are sitting at your desk.</p>
+							<p>Detects when you are sitting at your desk</p>
 							<p class="basic-sensor-reading" id="pressure-reading">Seat: —</p>
 						</div>
-						<div class="basic-sensor-status is-connecting" id="pressure-status"><span></span> Connecting...</div>
+						<div class="basic-sensor-status is-connecting" id="pressure-status"><span></span> Connecting</div>
 					</article>
 					<article class="basic-sensor-card">
 						<div class="basic-sensor-icon" aria-hidden="true">●</div>
 						<div class="basic-sensor-info">
 							<h2>LED</h2>
-							<p>Flashes as a visual break reminder.</p>
+							<p>Flashes as a visual break reminder</p>
 							<button class="sensor-test-button" type="button" data-device="led" data-action="blink">Test LED</button>
 						</div>
-						<div class="basic-sensor-status is-connecting" id="led-status"><span></span> Connecting...</div>
+						<div class="basic-sensor-status is-connecting" id="led-status"><span></span> Connecting</div>
 					</article>
 					<article class="basic-sensor-card">
 						<div class="basic-sensor-icon" aria-hidden="true">♪</div>
 						<div class="basic-sensor-info">
 							<h2>Buzzer</h2>
-							<p>Beeps when it is time to take a break.</p>
+							<p>Beeps when it is time to take a break</p>
 							<button class="sensor-test-button" type="button" data-device="buzzer" data-action="beep">Test buzzer</button>
 						</div>
-						<div class="basic-sensor-status is-connecting" id="buzzer-status"><span></span> Connecting...</div>
+						<div class="basic-sensor-status is-connecting" id="buzzer-status"><span></span> Connecting</div>
 					</article>
 				</div>
 			</section>
@@ -179,7 +179,7 @@
 			</div>
 		</aside>
 	</div>
-	<div class="toast" id="toast" role="status" aria-live="polite">Time to stand up and take a break.</div>
+	<div class="toast" id="toast" role="status" aria-live="polite">Time to stand up and take a break</div>
 	<script>
 		function updateDashboardDateTime() {
 			const dateTimeElement = document.getElementById('dashboard-date-time');
@@ -197,7 +197,7 @@
 			const el = document.getElementById(id);
 			if (!el) return;
 			el.className = `basic-sensor-status ${connected ? 'is-connected' : 'is-connecting'}`;
-			el.innerHTML = `<span></span> ${connected ? 'Connected' : 'Connecting...'}`;
+			el.innerHTML = `<span></span> ${connected ? 'Connected' : 'Connecting'}`;
 		}
 
 		async function pollDashboardSensorStatus() {
@@ -218,10 +218,10 @@
 					: 'Seat: —';
 				document.getElementById('pi-summary').textContent = online
 					? `Raspberry Pi online · last update ${data.last_seen ?? '—'}`
-					: (data.error_message || 'Raspberry Pi offline.');
+					: (data.error_message || 'Raspberry Pi offline');
 			} catch (err) {
 				['pir-status', 'pressure-status', 'led-status', 'buzzer-status'].forEach(id => setSensorStatus(id, false));
-				document.getElementById('pi-summary').textContent = 'Cannot reach the Anti-Burnout server.';
+				document.getElementById('pi-summary').textContent = 'Cannot reach the Anti-Burnout server';
 			}
 		}
 
@@ -230,7 +230,7 @@
 				const res = await fetch(`/api/actuator/${button.dataset.device}/${button.dataset.action}`, { method: 'POST' });
 				if (!res.ok) {
 					const body = await res.json().catch(() => ({}));
-					alert(body.detail || 'Could not reach the Raspberry Pi.');
+					alert(body.detail || 'Could not reach the Raspberry Pi');
 				}
 			});
 		});

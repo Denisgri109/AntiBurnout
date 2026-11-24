@@ -1331,7 +1331,7 @@ h2 em {
 }
 
 .card-number {
-  font-size: 12px;
+  font-size: 18px;
 }
 
 .card-icon {
@@ -1351,7 +1351,7 @@ h2 em {
 }
 
 .audience-card p {
-  font-size: 13px;
+  font-size: 20px;
   line-height: 1.6;
   max-width: 230px;
 }
@@ -1412,7 +1412,7 @@ h2 em {
   border-top: 1px solid var(--orange);
   color: var(--ink);
   display: flex;
-  font-size: 10px;
+  font-size: 26px;
   justify-content: space-between;
   padding: 25px 7.4vw;
 }
@@ -1651,10 +1651,10 @@ h2 em {
 
   .contact-lede {
     color: var(--cream);
-    font-size: 12px;
+    font-size: 16px;
     line-height: 1.7;
     margin: 0;
-    max-width: 410px;
+    max-width: 500px;
   }
 
   .contact-hero-art {
@@ -1686,6 +1686,7 @@ h2 em {
   .contact-hero-art .image-label {
     bottom: 12px;
     color: var(--ink);
+    font-size: 14px;
     position: absolute;
     right: 16px;
     z-index: 2;
@@ -1712,9 +1713,9 @@ h2 em {
   }
 
   .contact-intro > p:not(.eyebrow) {
-    font-size: 11px;
+    font-size: 16px;
     line-height: 1.7;
-    max-width: 300px;
+    max-width: 380px;
   }
 
   .contact-details {
@@ -1733,12 +1734,12 @@ h2 em {
 
   .contact-details span {
     color: #6f7473;
-    font-size: 9px;
+    font-size: 13px;
     text-transform: uppercase;
   }
 
   .contact-details a {
-    font-size: 11px;
+    font-size: 16px;
   }
 
   .contact-details a:hover,
@@ -1754,7 +1755,7 @@ h2 em {
 
   .form-note {
     color: var(--contact-accent);
-    font-size: 10px;
+    font-size: 14px;
     margin-bottom: 32px;
     text-transform: uppercase;
   }
@@ -1766,7 +1767,7 @@ h2 em {
 
   .contact-form label {
     display: block;
-    font-size: 10px;
+    font-size: 14px;
     margin-bottom: 22px;
     text-transform: uppercase;
   }
@@ -1786,7 +1787,7 @@ h2 em {
     border-radius: 0;
     color: var(--cream);
     display: block;
-    font: 13px 'Space Mono', monospace;
+    font: 16px 'Space Mono', monospace;
     margin-top: 10px;
     outline: none;
     padding: 11px 0;
@@ -1827,7 +1828,7 @@ h2 em {
 
   .form-status {
     color: var(--contact-accent);
-    font-size: 10px;
+    font-size: 14px;
     line-height: 1.5;
     min-height: 15px;
   }
