@@ -112,8 +112,8 @@
 						<div class="basic-sensor-icon" aria-hidden="true">⌁</div>
 						<div class="basic-sensor-info">
 							<h2>PIR motion sensor</h2>
-							<p>Detects movement around your desk</p>
-							<p class="basic-sensor-reading" id="pir-reading">Motion: —</p>
+							<p>Detects movement around your desk.</p>
+							<p class="basic-sensor-reading" id="pir-reading"><strong>Motion:</strong> —</p>
 						</div>
 						<div class="basic-sensor-status is-connecting" id="pir-status"><span></span> Connecting</div>
 					</article>
@@ -121,8 +121,8 @@
 						<div class="basic-sensor-icon" aria-hidden="true">+</div>
 						<div class="basic-sensor-info">
 							<h2>Pressure sensor</h2>
-							<p>Detects when you are sitting at your desk</p>
-							<p class="basic-sensor-reading" id="pressure-reading">Seat: —</p>
+							<p>Detects when you are sitting at your desk.</p>
+							<p class="basic-sensor-reading" id="pressure-reading"><strong>Seat:</strong> —</p>
 						</div>
 						<div class="basic-sensor-status is-connecting" id="pressure-status"><span></span> Connecting</div>
 					</article>
@@ -210,12 +210,12 @@
 				setSensorStatus('pressure-status', online && data.pressure_connected);
 				setSensorStatus('led-status', online);
 				setSensorStatus('buzzer-status', online);
-				document.getElementById('pir-reading').textContent = online
-					? `Motion: ${data.motion_detected ? 'Detected' : 'Still'}`
-					: 'Motion: —';
-				document.getElementById('pressure-reading').textContent = online
-					? `Seat: ${data.pressure_detected ? 'Occupied' : 'Empty'} (${Number(data.pressure_raw).toFixed(2)})`
-					: 'Seat: —';
+				document.getElementById('pir-reading').innerHTML = online
+					? `<strong>Motion:</strong> ${data.motion_detected ? 'Detected' : 'Still'}`
+					: '<strong>Motion:</strong> —';
+				document.getElementById('pressure-reading').innerHTML = online
+					? `<strong>Seat:</strong> ${data.pressure_detected ? 'Occupied' : 'Empty'} (${Number(data.pressure_raw).toFixed(2)})`
+					: '<strong>Seat:</strong> —';
 				document.getElementById('pi-summary').textContent = online
 					? `Raspberry Pi online · last update ${data.last_seen ?? '—'}`
 					: (data.error_message || 'Raspberry Pi offline');

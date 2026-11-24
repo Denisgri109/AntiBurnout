@@ -41,8 +41,8 @@
                 <div class="basic-sensor-icon" aria-hidden="true">⌁</div>
                 <div class="basic-sensor-info">
                     <h2>PIR motion sensor</h2>
-                    <p>Detects movement around your desk</p>
-                    <p class="basic-sensor-reading" id="pir-reading">Motion: —</p>
+                    <p>Detects movement around your desk.</p>
+                    <p class="basic-sensor-reading" id="pir-reading"><strong>Motion:</strong> —</p>
                 </div>
                 <div class="basic-sensor-status is-connecting" id="pir-status">
                     <span aria-hidden="true"></span>
@@ -54,8 +54,8 @@
                 <div class="basic-sensor-icon" aria-hidden="true">+</div>
                 <div class="basic-sensor-info">
                     <h2>Pressure sensor</h2>
-                    <p>Detects when you are sitting at your desk</p>
-                    <p class="basic-sensor-reading" id="pressure-reading">Seat: —</p>
+                    <p>Detects when you are sitting at your desk.</p>
+                    <p class="basic-sensor-reading" id="pressure-reading"><strong>Seat:</strong> —</p>
                 </div>
                 <div class="basic-sensor-status is-connecting" id="pressure-status">
                     <span aria-hidden="true"></span>
@@ -112,16 +112,16 @@
 
                 const pirReading = document.getElementById('pir-reading');
                 if (pirReading) {
-                    pirReading.textContent = online
-                        ? `Motion: ${data.motion_detected ? 'Detected' : 'Still'}`
-                        : 'Motion: —';
+                    pirReading.innerHTML = online
+                        ? `<strong>Motion:</strong> ${data.motion_detected ? 'Detected' : 'Still'}`
+                        : '<strong>Motion:</strong> —';
                 }
 
                 const pressureReading = document.getElementById('pressure-reading');
                 if (pressureReading) {
-                    pressureReading.textContent = online
-                        ? `Seat: ${data.pressure_detected ? 'Occupied' : 'Empty'} (${Number(data.pressure_raw).toFixed(2)})`
-                        : 'Seat: —';
+                    pressureReading.innerHTML = online
+                        ? `<strong>Seat:</strong> ${data.pressure_detected ? 'Occupied' : 'Empty'} (${Number(data.pressure_raw).toFixed(2)})`
+                        : '<strong>Seat:</strong> —';
                 }
 
                 const piSummary = document.getElementById('pi-summary');
