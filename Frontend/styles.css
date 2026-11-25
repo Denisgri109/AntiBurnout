@@ -1003,10 +1003,10 @@ h2 em {
 }
 
 .hero-text {
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: clamp(18px, 1.35vw, 20px);
+  line-height: 1.7;
   margin: 0 0 27px;
-  max-width: 330px;
+  max-width: 390px;
 }
 
 .outline-button {
@@ -1899,7 +1899,7 @@ h2 em {
   }
 
   .hero-text {
-    font-size: 14px;
+    font-size: 18px;
   }
 
   .outline-button {
