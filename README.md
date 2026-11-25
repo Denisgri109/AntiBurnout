@@ -35,6 +35,8 @@ their eyes while using a computer, imporving more healthier habits.
 
 ## Alpha Prototype
 <img width="4096" height="2304" alt="image" src="https://github.com/user-attachments/assets/88623eba-b344-4043-864d-3da2c7b30ec7" />
+<img width="849" height="451" alt="image" src="https://github.com/user-attachments/assets/3ddfffcb-90d4-4529-970d-05e4cd33ddcf" />
+
 
 
 ## User Personas 
