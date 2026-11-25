@@ -29,9 +29,20 @@ their eyes while using a computer, imporving more healthier habits.
 <img src="case1.png" width="100%" alt="Case Design 1">
 <img src="case2.png" width="100%" alt="Case Design 2">
 
+## 3D Model Design for 3D Print
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/2c6b561b-4c65-454a-9854-05c555a38970" />
+<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/177ad073-3e7c-4786-84a3-3516b815158a" />
+
+## Alpha Prototype
+<img width="4096" height="2304" alt="image" src="https://github.com/user-attachments/assets/88623eba-b344-4043-864d-3da2c7b30ec7" />
+
+
 ## User Personas 
 <img width="792" height="1007" alt="image" src="https://github.com/user-attachments/assets/745a899f-8aaa-46ed-852b-fbd823c2a630" />
 <img width="792" height="1007" alt="image" src="https://github.com/user-attachments/assets/88c6503e-d912-46fb-b572-3c97232af230" />
 <img width="793" height="1033" alt="image" src="https://github.com/user-attachments/assets/36fd94a9-bd52-4f2d-bbaf-9a37027f1abd" />
+
+## Fritizing Diagram
+<img width="2107" height="1107" alt="image" src="https://github.com/user-attachments/assets/f09418e7-c859-47c0-8faa-8d4304ea1dfc" />
 
 
