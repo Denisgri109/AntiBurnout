@@ -1,22 +1,26 @@
 from pathlib import Path
 from typing import Annotated
 from urllib.parse import urlencode
+from contextlib import asynccontextmanager
 import json
+import time
 import bcrypt
 import os
 import jwt
+import paho.mqtt.client as mqtt
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 
-from fastapi import FastAPI, Request, HTTPException, status, Depends, Form, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, HTTPException, status, Depends, Form, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from Database import models, schemas
 from Database.database import Base, engine, get_db
@@ -29,12 +33,22 @@ PI_SECRET_KEY = os.environ["PI_SECRET_KEY"]
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")
+MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
+MQTT_USER = os.getenv("MQTT_USER", "")
+MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    await engine.dispose()
 
 # Hide the API documentation completely
 app = FastAPI(
     title="Anti-Burnout",
+    lifespan=lifespan,
     docs_url=None,
     redoc_url=None,
     openapi_url=None
@@ -52,7 +66,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_current_user(request: Request, db: Annotated[Session, Depends(get_db)]):
+async def get_current_user(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
@@ -67,18 +81,19 @@ def get_current_user(request: Request, db: Annotated[Session, Depends(get_db)]):
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Your login has expired, please log in again")
 
-    user = db.execute(select(models.User).where(models.User.id == user_id)).scalars().first()
+    result = await db.execute(select(models.User).where(models.User.id == user_id))
+    user = result.scalars().first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
-def get_optional_current_user(request: Request, db: Annotated[Session, Depends(get_db)]):
+async def get_optional_current_user(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     try:
-        return get_current_user(request, db)
+        return await get_current_user(request, db)
     except HTTPException:
         return None
 
-def verify_pi(request: Request):
+async def verify_pi(request: Request):
     api_key = request.headers.get("X-Pi-Secret")
     if not api_key or api_key != PI_SECRET_KEY:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized hardware")
@@ -87,6 +102,10 @@ def verify_pi(request: Request):
 # ---------------------------------------------------------------------------
 # Raspberry Pi Connection State
 # ---------------------------------------------------------------------------
+SENSOR_TOPIC = "antiburnout/sensors/data"
+CONTROL_TOPIC = "antiburnout/actuators/control"
+PI_TIMEOUT_SECONDS = 5
+
 pi_status = {
     "is_connected": False,
     "pir_connected": False,
@@ -98,67 +117,69 @@ pi_status = {
     "last_seen": None,
 }
 
-pi_socket: WebSocket | None = None
+last_reading_time = 0.0
 
 
-@app.websocket("/ws/pi")
-async def pi_endpoint(websocket: WebSocket):
-    # Check headers securely so the key isn't in the URL
-    pi_secret = websocket.headers.get("X-Pi-Secret")
-    if pi_secret != PI_SECRET_KEY:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        return
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
+        print("Connected to MQTT broker")
+        client.subscribe(SENSOR_TOPIC)
+    else:
+        print(f"Failed to connect to MQTT broker: {reason_code}")
 
-    global pi_socket, pi_status
-    await websocket.accept()
-    pi_socket = websocket
-    pi_status["is_connected"] = True
-    pi_status["pir_connected"] = True
-    pi_status["pressure_connected"] = True
-    pi_status["error_message"] = None
 
+def on_message(client, userdata, msg):
+    global last_reading_time
     try:
-        while True:
-            data = await websocket.receive_text()
-            try:
-                payload = json.loads(data)
-                pi_status.update(payload)
-            except json.JSONDecodeError:
-                pass
-            pi_status["last_seen"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        pi_status.update(json.loads(msg.payload))
+    except (ValueError, TypeError):
+        return
+    pi_status["is_connected"] = True
+    pi_status["error_message"] = None
+    pi_status["last_seen"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    last_reading_time = time.monotonic()
 
-    except WebSocketDisconnect:
+
+def pi_is_online():
+    if pi_status["is_connected"] and time.monotonic() - last_reading_time > PI_TIMEOUT_SECONDS:
         pi_status["is_connected"] = False
         pi_status["pir_connected"] = False
         pi_status["pressure_connected"] = False
         pi_status["error_message"] = "Raspberry Pi disconnected."
-    except Exception as e:
-        pi_status["is_connected"] = False
-        pi_status["error_message"] = f"Error: {str(e)}"
-    finally:
-        pi_socket = None
+    return pi_status["is_connected"]
+
+
+mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+if MQTT_USER and MQTT_PASSWORD:
+    mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
+mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
+
+mqtt_client.connect_async(MQTT_BROKER, MQTT_PORT)
+mqtt_client.loop_start()
+
 
 @app.get("/api/status", dependencies=[Depends(get_current_user)])
-def get_pi_status():
+async def get_pi_status():
+    pi_is_online()
     return pi_status
 
 
-# Only logged-in web users can hit this endpoint
 @app.post("/api/actuator/{device}/{action}")
 async def control_actuator(device: str, action: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    if not pi_socket:
+    if not pi_is_online():
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Raspberry Pi is not connected",
         )
-    await pi_socket.send_text(json.dumps({"device": device, "action": action}))
+    mqtt_client.publish(f"{CONTROL_TOPIC}/{device}", json.dumps({"action": action}))
     return {"status": "ok", "device": device, "action": action}
 
 # ---------------------------------------------------------------------------
 # Template / Page Routes
 # ---------------------------------------------------------------------------
 @app.get("/", include_in_schema=False, name="home")
-def home(
+async def home(
     request: Request,
     current_user: Annotated[models.User | None, Depends(get_optional_current_user)],
 ):
@@ -166,7 +187,7 @@ def home(
 
 
 @app.get("/sensor", include_in_schema=False, name="sensor")
-def sensor_page(
+async def sensor_page(
     request: Request,
     current_user: Annotated[models.User, Depends(get_current_user)],
 ):
@@ -174,35 +195,36 @@ def sensor_page(
 
 
 @app.get("/status", include_in_schema=False, name="status", dependencies=[Depends(get_current_user)])
-def status_page(request: Request):
+async def status_page(request: Request):
     return templates.TemplateResponse(request, "Status.html", {"title": "Status"})
 
 
 @app.get("/contact", include_in_schema=False, name="contact")
-def contact_page(request: Request):
+async def contact_page(request: Request):
     return templates.TemplateResponse(request, "ContactUs.html", {"title": "Contact"})
 
 
 @app.get("/login", include_in_schema=False, name="login")
-def login_page(request: Request):
+async def login_page(request: Request):
     return templates.TemplateResponse(request, "Login.html", {"title": "Login"})
 
 
 @app.get("/register", include_in_schema=False, name="register")
-def register_page(request: Request):
+async def register_page(request: Request):
     return templates.TemplateResponse(request, "Register.html", {"title": "Register"})
 
 
 @app.get("/dashboard", include_in_schema=False, name="dashboard")
-def dashboard_page(
+async def dashboard_page(
     request: Request,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[models.User, Depends(get_current_user)],
     section: str | None = None,
     completed_tasks: Annotated[list[str] | None, Query()] = None,
 ):
-    # Only fetches sessions belonging to the logged-in user
-    sessions = db.execute(select(models.Session).where(models.Session.user_id == current_user.id)).scalars().all()
+
+    result = await db.execute(select(models.Session).where(models.Session.user_id == current_user.id))
+    sessions = result.scalars().all()
 
     return templates.TemplateResponse(
         request,
@@ -217,7 +239,7 @@ def dashboard_page(
     )
 
 @app.post("/dashboard", include_in_schema=False, name="dashboard_action")
-def dashboard_action(
+async def dashboard_action(
     request: Request,
     current_user: Annotated[models.User, Depends(get_current_user)],
     section: Annotated[str | None, Form()] = None,
@@ -248,9 +270,9 @@ def create_access_token(user_id: int):
     return jwt.encode({"sub": str(user_id), "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
 
 @app.post("/register", include_in_schema=False)
-def register_user(
+async def register_user(
     request: Request,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     username: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
@@ -262,29 +284,30 @@ def register_user(
     if not 3 <= len(username) <= 20:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username must be 3 to 20 characters")
 
-    # This stops the crash. checks for duplicates before creating
-    existing_user = db.execute(select(models.User).where((models.User.email == email) | (models.User.username == username))).scalars().first()
+    result = await db.execute(select(models.User).where((models.User.email == email) | (models.User.username == username)))
+    existing_user = result.scalars().first()
     if existing_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email or Username already exists")
 
     hashed_password = get_password_hash(password)
     new_user = models.User(username=username, email=email, password_hash=hashed_password)
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    await db.commit()
+    await db.refresh(new_user)
 
     response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(key="access_token", value=create_access_token(new_user.id), httponly=True, secure=True, samesite="lax")
     return response
 
 @app.post("/login", include_in_schema=False)
-def login_user(
+async def login_user(
     request: Request,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     email: str = Form(...),
     password: str = Form(...),
 ):
-    user = db.execute(select(models.User).where(models.User.email == email)).scalars().first()
+    result = await db.execute(select(models.User).where(models.User.email == email))
+    user = result.scalars().first()
     if not user or not verify_password(password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -296,30 +319,30 @@ def login_user(
     return response
 
 @app.get("/logout", include_in_schema=False, name="logout")
-def logout_user():
+async def logout_user():
     response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     response.delete_cookie("access_token")
     return response
 
 @app.get("/api/user/{user_id}", response_model=schemas.UserResponse)
-def get_user(user_id: int, db: Annotated[Session, Depends(get_db)], current_user: Annotated[models.User, Depends(get_current_user)]):
+async def get_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)], current_user: Annotated[models.User, Depends(get_current_user)]):
     if current_user.id != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this account")
 
-    result = db.execute(select(models.User).where(models.User.id == user_id))
+    result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if user:
         return user
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 @app.post("/api/sensor_log", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_pi)])
-def create_sensor_log(
+async def create_sensor_log(
     session_id: int,
     pressure_detected: int,
     motion_detected: int,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    result = db.execute(select(models.Session).where(models.Session.id == session_id))
+    result = await db.execute(select(models.Session).where(models.Session.id == session_id))
     session = result.scalars().first()
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
@@ -330,35 +353,35 @@ def create_sensor_log(
         motion_detected=motion_detected,
     )
     db.add(new_log)
-    db.commit()
-    db.refresh(new_log)
+    await db.commit()
+    await db.refresh(new_log)
     return new_log
 
 
 @app.post("/api/session/start", status_code=status.HTTP_201_CREATED, dependencies=[Depends(verify_pi)])
-def start_session(user_id: int, db: Annotated[Session, Depends(get_db)]):
+async def start_session(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     new_session = models.Session(
         user_id=user_id,
         start_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         status="active",
     )
     db.add(new_session)
-    db.commit()
-    db.refresh(new_session)
+    await db.commit()
+    await db.refresh(new_session)
     return new_session
 
 # only the Pi can end sessions
 @app.post("/api/session/end/{session_id}", dependencies=[Depends(verify_pi)])
-def end_session(session_id: int, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Session).where(models.Session.id == session_id))
+async def end_session(session_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
+    result = await db.execute(select(models.Session).where(models.Session.id == session_id))
     session = result.scalars().first()
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
 
     session.end_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     session.status = "completed"
-    db.commit()
-    db.refresh(session)
+    await db.commit()
+    await db.refresh(session)
     return session
 
 
@@ -372,10 +395,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 @app.exception_handler(StarletteHTTPException)
-def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
-    message = exception.detail if exception.detail else "An error occurred. Please check your request and try again"
+async def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
     if request.url.path.startswith("/api"):
-        return JSONResponse(status_code=exception.status_code, content={"detail": message})
+        return await http_exception_handler(request, exception)
+    message = exception.detail if exception.detail else "An error occurred. Please check your request and try again"
     return templates.TemplateResponse(
         request,
         "error.html",
@@ -385,12 +408,9 @@ def general_http_exception_handler(request: Request, exception: StarletteHTTPExc
 
 
 @app.exception_handler(RequestValidationError)
-def validation_exception_handler(request: Request, exception: RequestValidationError):
+async def validation_exception_handler(request: Request, exception: RequestValidationError):
     if request.url.path.startswith("/api"):
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            content={"detail": exception.errors()},
-        )
+        return await request_validation_exception_handler(request, exception)
     return templates.TemplateResponse(
         request,
         "error.html",

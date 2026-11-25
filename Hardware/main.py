@@ -1,15 +1,20 @@
-import asyncio
 import json
 import os
-import websockets
+import time
+import paho.mqtt.client as mqtt
 from dotenv import load_dotenv
 from gpiozero import MotionSensor, MCP3008, Buzzer, LED
 
 load_dotenv()
 
-SERVER_URL = os.getenv("SERVER_URL", "ws://10.13.213.14:8000/ws/pi")
+MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")
+MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
+MQTT_USER = os.getenv("MQTT_USER", "")
+MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
 PRESSURE_THRESHOLD = float(os.getenv("PRESSURE_THRESHOLD", "0.35"))
-PI_SECRET_KEY = os.getenv("PI_SECRET_KEY")
+
+SENSOR_TOPIC = "antiburnout/sensors/data"
+CONTROL_TOPIC = "antiburnout/actuators/control/+"
 
 pir = MotionSensor(23)
 pressure = MCP3008(0)
@@ -17,60 +22,72 @@ buzzer = Buzzer(24, active_high=False)
 led = LED(25)
 
 
-async def send_readings(websocket):
-    while True:
-        raw_val = pressure.value
-        data = {
-            "pir_connected": True,
-            "pressure_connected": True,
-            "motion_detected": int(pir.is_active),
-            "pressure_detected": int(raw_val >= PRESSURE_THRESHOLD),
-            "pressure_raw": round(raw_val, 3),
-        }
-        await websocket.send(json.dumps(data))
-        await asyncio.sleep(1)
+def read_sensors():
+    raw_val = pressure.value
+    return {
+        "pir_connected": True,
+        "pressure_connected": True,
+        "motion_detected": int(pir.is_active),
+        "pressure_detected": int(raw_val >= PRESSURE_THRESHOLD),
+        "pressure_raw": round(raw_val, 3),
+    }
 
 
-async def receive_commands(websocket):
-    async for message in websocket:
-        try:
-            cmd = json.loads(message)
-            device = cmd.get("device")
-            action = cmd.get("action")
-
-            if device == "led":
-                if action == "blink":
-                    led.blink(on_time=0.3, off_time=0.3, n=5)
-                elif action == "on":
-                    led.on()
-                elif action == "off":
-                    led.off()
-
-            elif device == "buzzer":
-                if action == "beep":
-                    buzzer.on()
-                    await asyncio.sleep(0.3)
-                    buzzer.off()
-        except Exception as e:
-            print(f"Command error: {e}")
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
+        print("Successfully connected to AntiBurnout MQTT broker!")
+        client.subscribe(CONTROL_TOPIC)
+    else:
+        print(f"Connection failed ({reason_code}). Retrying...")
 
 
-async def main():
-    while True:
-        try:
-            print(f"Connecting to {SERVER_URL}...")
-            # Send the secret key securely in the HTTP headers during the handshake
-            async with websockets.connect(SERVER_URL, additional_headers={"X-Pi-Secret": PI_SECRET_KEY}) as ws:
-                print("Successfully connected to AntiBurnout backend!")
-                await asyncio.gather(send_readings(ws), receive_commands(ws))
-        except Exception as e:
-            print(f"Connection failed ({e}). Retrying in 5 seconds...")
-            await asyncio.sleep(5)
+def on_message(client, userdata, msg):
+    device = msg.topic.split("/")[-1]
+    try:
+        action = json.loads(msg.payload).get("action")
+    except (ValueError, AttributeError) as e:
+        print(f"Command error: {e}")
+        return
+
+    if device == "led":
+        if action == "blink":
+            led.blink(on_time=0.3, off_time=0.3, n=5)
+        elif action == "on":
+            led.on()
+        elif action == "off":
+            led.off()
+
+    elif device == "buzzer":
+        if action == "beep":
+            buzzer.on()
+            time.sleep(0.3)
+            buzzer.off()
+
+
+def main():
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    if MQTT_USER and MQTT_PASSWORD:
+        client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    print(f"Connecting to {MQTT_BROKER}:{MQTT_PORT}...")
+    
+    client.connect_async(MQTT_BROKER, MQTT_PORT)
+    client.loop_start()
+
+    try:
+        while True:
+            client.publish(SENSOR_TOPIC, json.dumps(read_sensors()))
+            time.sleep(1)
+    finally:
+        client.loop_stop()
+        client.disconnect()
 
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         print("Stopping sensors...")
     finally:
