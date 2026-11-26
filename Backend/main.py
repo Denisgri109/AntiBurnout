@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Annotated
 from urllib.parse import urlencode
 from contextlib import asynccontextmanager
+import asyncio
 import json
 import time
 import bcrypt
@@ -23,7 +24,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Database import models, schemas
-from Database.database import Base, engine, get_db
+from Database.database import AsyncSessionLocal, Base, engine, get_db
 
 load_dotenv()
 
@@ -42,6 +43,9 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
 async def lifespan(_app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    mqtt_client.user_data_set(asyncio.get_running_loop())
+    mqtt_client.connect_async(MQTT_BROKER, MQTT_PORT)
+    mqtt_client.loop_start()
     yield
     await engine.dispose()
 
@@ -134,6 +138,7 @@ def on_message(client, userdata, msg):
         pi_status.update(json.loads(msg.payload))
     except (ValueError, TypeError):
         return
+    asyncio.run_coroutine_threadsafe(save_sensor_log(pi_status["pressure_detected"], pi_status["motion_detected"]), userdata)
     pi_status["is_connected"] = True
     pi_status["error_message"] = None
     pi_status["last_seen"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -149,14 +154,28 @@ def pi_is_online():
     return pi_status["is_connected"]
 
 
+async def save_sensor_log(pressure_detected, motion_detected):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(select(models.Session).where(models.Session.status == "active").order_by(models.Session.id.desc()))
+        session = result.scalars().first()
+        if not session:
+            return
+
+        new_log = models.Sensor_Log(
+            session_id=session.id,
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            pressure_detected=int(pressure_detected),
+            motion_detected=int(motion_detected),
+        )
+        db.add(new_log)
+        await db.commit()
+
+
 mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 if MQTT_USER and MQTT_PASSWORD:
     mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
-
-mqtt_client.connect_async(MQTT_BROKER, MQTT_PORT)
-mqtt_client.loop_start()
 
 
 @app.get("/api/status", dependencies=[Depends(get_current_user)])
